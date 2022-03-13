@@ -1,7 +1,7 @@
 name: activity_calendar
 description: A new Flutter package project.
 version: 0.0.1
-homepage:–
+homepage:
 
 environment:
   sdk: ">=2.16.1 <3.0.0"
