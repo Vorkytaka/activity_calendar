@@ -5,7 +5,7 @@ class ActivityCalendar extends StatelessWidget {
   final Color? fromColor;
   final Color? toColor;
   final int steps;
-  final List<int> activity;
+  final List<int> activities;
   final List<int> _segments;
   final List<Color> _colors;
   final List<Widget> _tiles;
@@ -15,9 +15,9 @@ class ActivityCalendar extends StatelessWidget {
     this.fromColor,
     this.toColor,
     this.steps = 5,
-    required this.activity,
+    required this.activities,
   })  : _segments = segments(
-          activity.fold(0, (prev, curr) => curr > prev ? curr : prev),
+          activities.fold(0, (prev, curr) => curr > prev ? curr : prev),
           steps,
         ),
         _colors = colors(
@@ -38,13 +38,14 @@ class ActivityCalendar extends StatelessWidget {
 
   static List<Color> colors(Color from, Color to, int steps) {
     assert(steps >= 3);
+    final da = to.alpha - from.alpha;
     final dr = to.red - from.red;
     final dg = to.green - from.green;
     final db = to.green - from.green;
     return List.generate(
       steps,
       (i) => Color.fromARGB(
-        255,
+        (from.alpha + i * (da / (steps - 1))).toInt(),
         (from.red + i * (dr / (steps - 1))).toInt(),
         (from.green + i * (dg / (steps - 1))).toInt(),
         (from.blue + i * (db / (steps - 1))).toInt(),
@@ -64,6 +65,41 @@ class ActivityCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    final today = DateTime.now();
+    return GridView.builder(
+      scrollDirection: Axis.horizontal,
+      reverse: true,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
+        crossAxisSpacing: 1,
+        mainAxisSpacing: 1,
+      ),
+      itemCount: activities.length + (7 - today.weekday) + 6,
+      itemBuilder: (context, i) {
+        final index = calculateIndex(i, today.weekday);
+        if(index < 0 || index >= activities.length) {
+          return const SizedBox();
+        }
+
+        final activity = activities[index];
+        final segment = getSegment(activity);
+        return ColoredBox(
+          color: _colors[segment],
+          child: Center(
+            child: Text('$index'),
+          ),
+        );
+      },
+    );
+  }
+
+  int getSegment(int activity) {
+    for(int i = 0; i < _segments.length; i++) {
+      if(activity <= _segments[i]) {
+        return i;
+      }
+    }
+
+    return 0;
   }
 }
