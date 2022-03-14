@@ -102,10 +102,17 @@ class ActivityCalendar extends StatelessWidget {
 
         final activity = activities[index];
         final segment = getSegment(activity);
-        return GestureDetector(
-          onTap: onTap != null ? () => onTap!(index) : null,
-          child: _mapOfTiles[segment]!,
-        );
+
+        Widget item = _mapOfTiles[segment]!;
+
+        if (onTap != null) {
+          item = GestureDetector(
+            onTap: () => onTap!(index),
+            child: item,
+          );
+        }
+
+        return item;
       },
     );
   }
