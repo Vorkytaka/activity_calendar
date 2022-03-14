@@ -34,7 +34,8 @@ class ExampleApp extends StatelessWidget {
                 child: ActivityCalendar(
                   activities: rl(),
                   toColor: Colors.green,
-                  fromColor: Colors.grey.shade200,
+                  fromColor: Colors.transparent,
+                  weekday: DateTime.friday,
                 ),
               ),
             ],
@@ -46,5 +47,5 @@ class ExampleApp extends StatelessWidget {
 
   static final r = Random();
 
-  static List<int> rl() => List.generate(500, (index) => r.nextInt(10));
+  static List<int> rl() => List.generate(7, (index) => r.nextInt(10));
 }

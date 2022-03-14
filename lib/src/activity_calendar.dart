@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+
+typedef IndexedOnTap = void Function(int index);
 
 class ActivityCalendar extends StatelessWidget {
   final Color? fromColor;
   final Color? toColor;
   final int steps;
   final List<int> activities;
-  final List<int> _segments;
-  final List<Color> _colors;
-  final List<Widget> _tiles;
   final Map<int, Widget> _mapOfTiles;
+  final int? weekday;
+  final double spacing;
+  final Axis scrollDirection;
+  final bool reverse;
+  final IndexedOnTap? onTap;
 
   ActivityCalendar({
     Key? key,
@@ -17,21 +22,12 @@ class ActivityCalendar extends StatelessWidget {
     this.toColor,
     this.steps = 5,
     required this.activities,
-  })  : _segments = segments(
-          activities.fold(0, (prev, curr) => curr > prev ? curr : prev),
-          steps,
-        ),
-        _colors = colors(
-          fromColor ?? Colors.grey,
-          toColor ?? Colors.green,
-          steps,
-        ),
-        _tiles = colors(
-          fromColor ?? Colors.grey,
-          toColor ?? Colors.green,
-          steps,
-        ).map((color) => ColoredBox(color: color)).toList(growable: false),
-        _mapOfTiles = _t(
+    this.weekday,
+    this.spacing = 3,
+    this.scrollDirection = Axis.vertical,
+    this.reverse = false,
+    this.onTap,
+  })  : _mapOfTiles = _t(
           fromColor ?? Colors.grey,
           toColor ?? Colors.green,
           steps,
@@ -92,25 +88,28 @@ class ActivityCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
+    final weekday = this.weekday ?? DateTime.now().weekday;
     return GridView.builder(
-      // scrollDirection: Axis.horizontal,
-      // reverse: true,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      scrollDirection: scrollDirection,
+      reverse: reverse,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
-        crossAxisSpacing: 1,
-        mainAxisSpacing: 1,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: spacing,
       ),
-      itemCount: activities.length + (7 - today.weekday) + 6,
+      itemCount: activities.length + (7 - weekday) + 6,
       itemBuilder: (context, i) {
-        final index = calculateIndex(i, today.weekday);
+        final index = calculateIndex(i, weekday);
         if (index < 0 || index >= activities.length) {
           return const SizedBox();
         }
 
         final activity = activities[index];
         final segment = getSegment(activity);
-        return _mapOfTiles[segment]!;
+        return GestureDetector(
+          onTap: onTap != null ? () => onTap!(index) : null,
+          child: _mapOfTiles[segment]!,
+        );
       },
     );
   }
