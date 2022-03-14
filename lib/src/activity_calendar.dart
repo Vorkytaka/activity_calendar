@@ -45,7 +45,9 @@ class ActivityCalendar extends StatelessWidget {
   }
 
   static int calculateChildCount(List<int> activities, int weekday) {
-    return activities.length + (7 - weekday) + 6;
+    return activities.length + // actually days
+        (7 - weekday) + // skip in first line
+        (7 - (activities.length + 7 - weekday) % 7) % 7; // skip on last line
   }
 
   static Map<int, Widget> tiles(
