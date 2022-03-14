@@ -35,8 +35,8 @@ class ExampleApp extends StatelessWidget {
               Expanded(
                 child: ActivityCalendar(
                   activities: rl(),
-                  fromColor: Colors.white,
-                  toColor: Colors.black,
+                  fromColor: Colors.transparent,
+                  toColor: Colors.green,
                   weekday: DateTime.friday,
                 ),
               ),

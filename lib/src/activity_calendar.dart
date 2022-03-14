@@ -57,8 +57,8 @@ class ActivityCalendar extends StatelessWidget {
     final da = to.alpha - from.alpha;
     final dr = to.red - from.red;
     final dg = to.green - from.green;
-    final db = to.green - from.green;
-    for (int i = 0; i < max; i++) {
+    final db = to.blue - from.blue;
+    for (int i = 0; i < steps; i++) {
       final index = (i * (max / (steps - 1))).toInt();
       final color = Color.fromARGB(
         (from.alpha + i * (da / (steps - 1))).toInt(),
