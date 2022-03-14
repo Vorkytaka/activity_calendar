@@ -47,14 +47,27 @@ class ExampleApp extends StatelessWidget {
             preferredSize: const Size.fromHeight(16),
           ),
         ),
-        body: SafeArea(
-          child: ActivityCalendar(
-            activities: rl(),
-            fromColor: Colors.grey.shade900,
-            toColor: Colors.green.shade500,
-            steps: 5,
-            borderRadius: BorderRadius.circular(4),
-          ),
+        body: ActivityCalendar(
+          activities: rl(),
+          fromColor: const Color(0xff202020),
+          toColor: Colors.green.shade500,
+          steps: 5,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(
+              icon: RotatedBox(
+                quarterTurns: 1,
+                child: Icon(Icons.calendar_view_month),
+              ),
+              label: 'Вертикально',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_view_month),
+              label: 'Горизонтально',
+            ),
+          ],
         ),
       ),
     );
