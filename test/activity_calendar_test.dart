@@ -179,198 +179,53 @@ void main() {
     });
   });
 
+  // helper function to test `calculateIndex`
+  void _calculateIndex(int weekday, List<int> matchers) {
+    assert(matchers.length > 1);
+    for (int i = 0; i < matchers.length; i++) {
+      expect(
+        ActivityCalendar.calculateIndex(i, weekday),
+        matchers[i],
+        reason: 'Error on matcher[$i]',
+      );
+    }
+  }
+
   group('calculateIndex', () {
-    test('Sunday', () {
-      const day = DateTime.sunday;
+    test(
+        'Sunday',
+        () => _calculateIndex(DateTime.sunday,
+            [6, 5, 4, 3, 2, 1, 0, 13, 12, 11, 10, 9, 8, 7, 20, 19, 18]));
 
-      expect(ActivityCalendar.calculateIndex(0, day), 6);
-      expect(ActivityCalendar.calculateIndex(1, day), 5);
-      expect(ActivityCalendar.calculateIndex(2, day), 4);
-      expect(ActivityCalendar.calculateIndex(3, day), 3);
-      expect(ActivityCalendar.calculateIndex(4, day), 2);
-      expect(ActivityCalendar.calculateIndex(5, day), 1);
-      expect(ActivityCalendar.calculateIndex(6, day), 0);
+    test(
+        'Saturday',
+        () => _calculateIndex(DateTime.saturday,
+            [5, 4, 3, 2, 1, 0, -1, 12, 11, 10, 9, 8, 7, 6, 19, 18, 17]));
 
-      expect(ActivityCalendar.calculateIndex(7, day), 13);
-      expect(ActivityCalendar.calculateIndex(8, day), 12);
-      expect(ActivityCalendar.calculateIndex(9, day), 11);
-      expect(ActivityCalendar.calculateIndex(10, day), 10);
-      expect(ActivityCalendar.calculateIndex(11, day), 9);
-      expect(ActivityCalendar.calculateIndex(12, day), 8);
-      expect(ActivityCalendar.calculateIndex(13, day), 7);
+    test(
+        'Friday',
+        () => _calculateIndex(DateTime.friday,
+            [4, 3, 2, 1, 0, -1, -2, 11, 10, 9, 8, 7, 6, 5, 18, 17, 16]));
 
-      expect(ActivityCalendar.calculateIndex(14, day), 20);
-      expect(ActivityCalendar.calculateIndex(15, day), 19);
-      expect(ActivityCalendar.calculateIndex(16, day), 18);
-    });
+    test(
+        'Thusday',
+        () => _calculateIndex(DateTime.thursday,
+            [3, 2, 1, 0, -1, -2, -3, 10, 9, 8, 7, 6, 5, 4, 17, 16, 15]));
 
-    test('Saturday', () {
-      const day = DateTime.saturday;
+    test(
+        'Wednesday',
+        () => _calculateIndex(DateTime.wednesday,
+            [2, 1, 0, -1, -2, -3, -4, 9, 8, 7, 6, 5, 4, 3, 16, 15, 14]));
 
-      expect(ActivityCalendar.calculateIndex(0, day), 5);
-      expect(ActivityCalendar.calculateIndex(1, day), 4);
-      expect(ActivityCalendar.calculateIndex(2, day), 3);
-      expect(ActivityCalendar.calculateIndex(3, day), 2);
-      expect(ActivityCalendar.calculateIndex(4, day), 1);
-      expect(ActivityCalendar.calculateIndex(5, day), 0);
-      expect(ActivityCalendar.calculateIndex(6, day), -1);
+    test(
+        'Tuesday',
+        () => _calculateIndex(DateTime.tuesday,
+            [1, 0, -1, -2, -3, -4, -5, 8, 7, 6, 5, 4, 3, 2, 15, 14, 13]));
 
-      expect(ActivityCalendar.calculateIndex(7, day), 12);
-      expect(ActivityCalendar.calculateIndex(8, day), 11);
-      expect(ActivityCalendar.calculateIndex(9, day), 10);
-      expect(ActivityCalendar.calculateIndex(10, day), 9);
-      expect(ActivityCalendar.calculateIndex(11, day), 8);
-      expect(ActivityCalendar.calculateIndex(12, day), 7);
-      expect(ActivityCalendar.calculateIndex(13, day), 6);
-
-      expect(ActivityCalendar.calculateIndex(14, day), 19);
-      expect(ActivityCalendar.calculateIndex(15, day), 18);
-      expect(ActivityCalendar.calculateIndex(16, day), 17);
-    });
-
-    test('Friday', () {
-      const day = DateTime.friday;
-
-      expect(ActivityCalendar.calculateIndex(0, day), 4);
-      expect(ActivityCalendar.calculateIndex(1, day), 3);
-      expect(ActivityCalendar.calculateIndex(2, day), 2);
-      expect(ActivityCalendar.calculateIndex(3, day), 1);
-      expect(ActivityCalendar.calculateIndex(4, day), 0);
-      expect(ActivityCalendar.calculateIndex(5, day), -1);
-      expect(ActivityCalendar.calculateIndex(6, day), -2);
-
-      expect(ActivityCalendar.calculateIndex(7, day), 11);
-      expect(ActivityCalendar.calculateIndex(8, day), 10);
-      expect(ActivityCalendar.calculateIndex(9, day), 9);
-      expect(ActivityCalendar.calculateIndex(10, day), 8);
-      expect(ActivityCalendar.calculateIndex(11, day), 7);
-      expect(ActivityCalendar.calculateIndex(12, day), 6);
-      expect(ActivityCalendar.calculateIndex(13, day), 5);
-
-      expect(ActivityCalendar.calculateIndex(14, day), 18);
-      expect(ActivityCalendar.calculateIndex(15, day), 17);
-      expect(ActivityCalendar.calculateIndex(16, day), 16);
-    });
-
-    test('Friday', () {
-      const day = DateTime.friday;
-
-      expect(ActivityCalendar.calculateIndex(0, day), 4);
-      expect(ActivityCalendar.calculateIndex(1, day), 3);
-      expect(ActivityCalendar.calculateIndex(2, day), 2);
-      expect(ActivityCalendar.calculateIndex(3, day), 1);
-      expect(ActivityCalendar.calculateIndex(4, day), 0);
-      expect(ActivityCalendar.calculateIndex(5, day), -1);
-      expect(ActivityCalendar.calculateIndex(6, day), -2);
-
-      expect(ActivityCalendar.calculateIndex(7, day), 11);
-      expect(ActivityCalendar.calculateIndex(8, day), 10);
-      expect(ActivityCalendar.calculateIndex(9, day), 9);
-      expect(ActivityCalendar.calculateIndex(10, day), 8);
-      expect(ActivityCalendar.calculateIndex(11, day), 7);
-      expect(ActivityCalendar.calculateIndex(12, day), 6);
-      expect(ActivityCalendar.calculateIndex(13, day), 5);
-
-      expect(ActivityCalendar.calculateIndex(14, day), 18);
-      expect(ActivityCalendar.calculateIndex(15, day), 17);
-      expect(ActivityCalendar.calculateIndex(16, day), 16);
-    });
-
-    test('Thursday', () {
-      const day = DateTime.thursday;
-
-      expect(ActivityCalendar.calculateIndex(0, day), 3);
-      expect(ActivityCalendar.calculateIndex(1, day), 2);
-      expect(ActivityCalendar.calculateIndex(2, day), 1);
-      expect(ActivityCalendar.calculateIndex(3, day), 0);
-      expect(ActivityCalendar.calculateIndex(4, day), -1);
-      expect(ActivityCalendar.calculateIndex(5, day), -2);
-      expect(ActivityCalendar.calculateIndex(6, day), -3);
-
-      expect(ActivityCalendar.calculateIndex(7, day), 10);
-      expect(ActivityCalendar.calculateIndex(8, day), 9);
-      expect(ActivityCalendar.calculateIndex(9, day), 8);
-      expect(ActivityCalendar.calculateIndex(10, day), 7);
-      expect(ActivityCalendar.calculateIndex(11, day), 6);
-      expect(ActivityCalendar.calculateIndex(12, day), 5);
-      expect(ActivityCalendar.calculateIndex(13, day), 4);
-
-      expect(ActivityCalendar.calculateIndex(14, day), 17);
-      expect(ActivityCalendar.calculateIndex(15, day), 16);
-      expect(ActivityCalendar.calculateIndex(16, day), 15);
-    });
-
-    test('Wednesday', () {
-      const day = DateTime.wednesday;
-
-      expect(ActivityCalendar.calculateIndex(0, day), 2);
-      expect(ActivityCalendar.calculateIndex(1, day), 1);
-      expect(ActivityCalendar.calculateIndex(2, day), 0);
-      expect(ActivityCalendar.calculateIndex(3, day), -1);
-      expect(ActivityCalendar.calculateIndex(4, day), -2);
-      expect(ActivityCalendar.calculateIndex(5, day), -3);
-      expect(ActivityCalendar.calculateIndex(6, day), -4);
-
-      expect(ActivityCalendar.calculateIndex(7, day), 9);
-      expect(ActivityCalendar.calculateIndex(8, day), 8);
-      expect(ActivityCalendar.calculateIndex(9, day), 7);
-      expect(ActivityCalendar.calculateIndex(10, day), 6);
-      expect(ActivityCalendar.calculateIndex(11, day), 5);
-      expect(ActivityCalendar.calculateIndex(12, day), 4);
-      expect(ActivityCalendar.calculateIndex(13, day), 3);
-
-      expect(ActivityCalendar.calculateIndex(14, day), 16);
-      expect(ActivityCalendar.calculateIndex(15, day), 15);
-      expect(ActivityCalendar.calculateIndex(16, day), 14);
-    });
-
-    test('Tuesday', () {
-      const day = DateTime.tuesday;
-
-      expect(ActivityCalendar.calculateIndex(0, day), 1);
-      expect(ActivityCalendar.calculateIndex(1, day), 0);
-      expect(ActivityCalendar.calculateIndex(2, day), -1);
-      expect(ActivityCalendar.calculateIndex(3, day), -2);
-      expect(ActivityCalendar.calculateIndex(4, day), -3);
-      expect(ActivityCalendar.calculateIndex(5, day), -4);
-      expect(ActivityCalendar.calculateIndex(6, day), -5);
-
-      expect(ActivityCalendar.calculateIndex(7, day), 8);
-      expect(ActivityCalendar.calculateIndex(8, day), 7);
-      expect(ActivityCalendar.calculateIndex(9, day), 6);
-      expect(ActivityCalendar.calculateIndex(10, day), 5);
-      expect(ActivityCalendar.calculateIndex(11, day), 4);
-      expect(ActivityCalendar.calculateIndex(12, day), 3);
-      expect(ActivityCalendar.calculateIndex(13, day), 2);
-
-      expect(ActivityCalendar.calculateIndex(14, day), 15);
-      expect(ActivityCalendar.calculateIndex(15, day), 14);
-      expect(ActivityCalendar.calculateIndex(16, day), 13);
-    });
-
-    test('Monday', () {
-      const day = DateTime.monday;
-
-      expect(ActivityCalendar.calculateIndex(0, day), 0);
-      expect(ActivityCalendar.calculateIndex(1, day), -1);
-      expect(ActivityCalendar.calculateIndex(2, day), -2);
-      expect(ActivityCalendar.calculateIndex(3, day), -3);
-      expect(ActivityCalendar.calculateIndex(4, day), -4);
-      expect(ActivityCalendar.calculateIndex(5, day), -5);
-      expect(ActivityCalendar.calculateIndex(6, day), -6);
-
-      expect(ActivityCalendar.calculateIndex(7, day), 7);
-      expect(ActivityCalendar.calculateIndex(8, day), 6);
-      expect(ActivityCalendar.calculateIndex(9, day), 5);
-      expect(ActivityCalendar.calculateIndex(10, day), 4);
-      expect(ActivityCalendar.calculateIndex(11, day), 3);
-      expect(ActivityCalendar.calculateIndex(12, day), 2);
-      expect(ActivityCalendar.calculateIndex(13, day), 1);
-
-      expect(ActivityCalendar.calculateIndex(14, day), 14);
-      expect(ActivityCalendar.calculateIndex(15, day), 13);
-      expect(ActivityCalendar.calculateIndex(16, day), 12);
-    });
+    test(
+        'Monday',
+        () => _calculateIndex(DateTime.monday,
+            [0, -1, -2, -3, -4, -5, -6, 7, 6, 5, 4, 3, 2, 1, 14, 13, 12]));
   });
 }
 
