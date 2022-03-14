@@ -79,33 +79,6 @@ class ActivityCalendar extends StatelessWidget {
     return map;
   }
 
-  static List<Color> colors(Color from, Color to, int steps) {
-    assert(steps >= 3);
-    final da = to.alpha - from.alpha;
-    final dr = to.red - from.red;
-    final dg = to.green - from.green;
-    final db = to.green - from.green;
-    return List.generate(
-      steps,
-      (i) => Color.fromARGB(
-        (from.alpha + i * (da / (steps - 1))).toInt(),
-        (from.red + i * (dr / (steps - 1))).toInt(),
-        (from.green + i * (dg / (steps - 1))).toInt(),
-        (from.blue + i * (db / (steps - 1))).toInt(),
-      ),
-      growable: false,
-    );
-  }
-
-  static List<int> segments(int max, int steps) {
-    assert(steps >= 3);
-    return List.generate(
-      steps,
-      (i) => (i * (max / (steps - 1))).toInt(),
-      growable: false,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final weekday = this.weekday ?? DateTime.now().weekday;
