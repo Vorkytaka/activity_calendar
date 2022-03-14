@@ -15,10 +15,30 @@ class ExampleApp extends StatelessWidget {
     return MaterialApp(
       title: 'Activity Calendar Example',
       home: Scaffold(
-        body: ActivityCalendar(
-          activities: rl(),
-          toColor: Colors.blue,
-          fromColor: Colors.transparent,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: const [
+                  Text("пн"),
+                  Text("вт"),
+                  Text("ср"),
+                  Text("чт"),
+                  Text("пт"),
+                  Text("сб"),
+                  Text("вс"),
+                ],
+              ),
+              Expanded(
+                child: ActivityCalendar(
+                  activities: rl(),
+                  toColor: Colors.green,
+                  fromColor: Colors.grey.shade200,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -26,5 +46,5 @@ class ExampleApp extends StatelessWidget {
 
   static final r = Random();
 
-  static List<int> rl() => List.generate(50, (index) => r.nextInt(10));
+  static List<int> rl() => List.generate(500, (index) => r.nextInt(10));
 }
