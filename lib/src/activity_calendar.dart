@@ -16,6 +16,7 @@ class ActivityCalendar extends StatelessWidget {
   final bool reverse;
   final IndexedOnTap? onTap;
   final BorderRadius borderRadius;
+  final EdgeInsetsGeometry? padding;
 
   ActivityCalendar({
     Key? key,
@@ -29,6 +30,7 @@ class ActivityCalendar extends StatelessWidget {
     this.reverse = false,
     this.onTap,
     this.borderRadius = const BorderRadius.all(Radius.circular(8)),
+    this.padding,
   })  : _mapOfTiles = tiles(
           fromColor ?? Colors.grey,
           toColor ?? Colors.green,
@@ -108,6 +110,7 @@ class ActivityCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     final weekday = this.weekday ?? DateTime.now().weekday;
     return GridView.builder(
+      padding: padding,
       scrollDirection: scrollDirection,
       reverse: reverse,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
