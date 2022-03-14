@@ -3,6 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('calculateChildCount', () {
+    // *******
+    // *******
+    // ------*
     test('Sunday', () {
       const day = DateTime.sunday;
 
@@ -25,6 +28,9 @@ void main() {
       expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
     });
 
+    // ******-
+    // *******
+    // -----**
     test('Saturday', () {
       const day = DateTime.saturday;
 
@@ -47,6 +53,9 @@ void main() {
       expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
     });
 
+    // *****--
+    // *******
+    // ----***
     test('Friday', () {
       const day = DateTime.friday;
 
@@ -69,6 +78,9 @@ void main() {
       expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
     });
 
+    // ****---
+    // *******
+    // ---****
     test('Thursday', () {
       const day = DateTime.thursday;
 
@@ -91,6 +103,9 @@ void main() {
       expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
     });
 
+    // ***----
+    // *******
+    // --*****
     test('Wednesday', () {
       const day = DateTime.wednesday;
 
@@ -112,6 +127,10 @@ void main() {
       expect(ActivityCalendar.calculateChildCount(_list(14), day), 21);
       expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
     });
+
+    // **-----
+    // *******
+    // -******
     test('Tuesday', () {
       const day = DateTime.tuesday;
 
@@ -134,6 +153,9 @@ void main() {
       expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
     });
 
+    // *------
+    // *******
+    // *******
     test('Monday', () {
       const day = DateTime.monday;
 
@@ -155,8 +177,6 @@ void main() {
       expect(ActivityCalendar.calculateChildCount(_list(14), day), 21);
       expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
     });
-
-
   });
 }
 
