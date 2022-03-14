@@ -14,6 +14,8 @@ class ExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Activity Calendar Example',
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData.dark(),
       home: Scaffold(
         body: SafeArea(
           child: Column(
@@ -33,8 +35,8 @@ class ExampleApp extends StatelessWidget {
               Expanded(
                 child: ActivityCalendar(
                   activities: rl(),
-                  toColor: Colors.green,
-                  fromColor: Colors.transparent,
+                  fromColor: Colors.white,
+                  toColor: Colors.black,
                   weekday: DateTime.friday,
                 ),
               ),
@@ -47,5 +49,5 @@ class ExampleApp extends StatelessWidget {
 
   static final r = Random();
 
-  static List<int> rl() => List.generate(7, (index) => r.nextInt(10));
+  static List<int> rl() => List.generate(90, (index) => r.nextInt(10));
 }

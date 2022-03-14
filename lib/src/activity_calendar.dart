@@ -15,6 +15,7 @@ class ActivityCalendar extends StatelessWidget {
   final Axis scrollDirection;
   final bool reverse;
   final IndexedOnTap? onTap;
+  final BorderRadius borderRadius;
 
   ActivityCalendar({
     Key? key,
@@ -27,11 +28,13 @@ class ActivityCalendar extends StatelessWidget {
     this.scrollDirection = Axis.vertical,
     this.reverse = false,
     this.onTap,
-  })  : _mapOfTiles = _t(
+    this.borderRadius = const BorderRadius.all(Radius.circular(8)),
+  })  : _mapOfTiles = tiles(
           fromColor ?? Colors.grey,
           toColor ?? Colors.green,
           steps,
           activities.fold(0, (prev, curr) => curr > prev ? curr : prev),
+          borderRadius,
         ),
         super(key: key);
 
@@ -39,7 +42,17 @@ class ActivityCalendar extends StatelessWidget {
     return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - dayOfWeek);
   }
 
-  static Map<int, Widget> _t(Color from, Color to, int steps, int max) {
+  static int calculateChildCount(List<int> activities, int weekday) {
+    return activities.length + (7 - weekday) + 6;
+  }
+
+  static Map<int, Widget> tiles(
+    Color from,
+    Color to,
+    int steps,
+    int max,
+    BorderRadius borderRadius,
+  ) {
     final map = <int, Widget>{};
     final da = to.alpha - from.alpha;
     final dr = to.red - from.red;
@@ -53,7 +66,12 @@ class ActivityCalendar extends StatelessWidget {
         (from.green + i * (dg / (steps - 1))).toInt(),
         (from.blue + i * (db / (steps - 1))).toInt(),
       );
-      map[index] = ColoredBox(color: color);
+      map[index] = Container(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: borderRadius,
+        ),
+      );
     }
 
     return map;
@@ -97,7 +115,7 @@ class ActivityCalendar extends StatelessWidget {
         crossAxisSpacing: spacing,
         mainAxisSpacing: spacing,
       ),
-      itemCount: activities.length + (7 - weekday) + 6,
+      itemCount: calculateChildCount(activities, weekday),
       itemBuilder: (context, i) {
         final index = calculateIndex(i, weekday);
         if (index < 0 || index >= activities.length) {
