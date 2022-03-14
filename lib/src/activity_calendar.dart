@@ -40,8 +40,8 @@ class ActivityCalendar extends StatelessWidget {
         ),
         super(key: key);
 
-  static int calculateIndex(int i, int dayOfWeek) {
-    return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - dayOfWeek);
+  static int calculateIndex(int i, int weekday) {
+    return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - weekday);
   }
 
   static int calculateChildCount(List<int> activities, int weekday) {
