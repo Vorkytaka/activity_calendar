@@ -27,47 +27,102 @@ class ExampleApp extends StatelessWidget {
       title: 'Activity Calendar Example',
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData.dark(),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Activity Calendar Example'),
-          centerTitle: false,
-          actions: [
-            PopupMenuButton(itemBuilder: (context) => []),
-          ],
-          bottom: PreferredSize(
-            child: Row(
-              children: _weekdays
-                  .map((e) => Expanded(
-                          child: Text(
-                        _weekdayFormat.format(e),
-                        textAlign: TextAlign.center,
-                      )))
-                  .toList(),
-            ),
-            preferredSize: const Size.fromHeight(16),
-          ),
-        ),
-        body: ActivityCalendar(
-          activities: rl(),
-          fromColor: const Color(0xff202020),
-          toColor: Colors.green.shade500,
-          steps: 5,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const [
-            BottomNavigationBarItem(
-              icon: RotatedBox(
-                quarterTurns: 1,
-                child: Icon(Icons.calendar_view_month),
+      home: Builder(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Activity Calendar Example'),
+            centerTitle: false,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.adaptive.more),
+                // tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: Text(
+                            'Settings',
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ),
+                        const Divider(
+                          height: 1,
+                          indent: 8,
+                          endIndent: 8,
+                        ),
+                        ListTile(
+                          title: const Text('Color from'),
+                          onTap: () {},
+                          trailing: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(32),
+                              ),
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                        ListTile(
+                          title: const Text('Color to'),
+                          onTap: () {},
+                          trailing: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(32),
+                              ),
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
-              label: 'Вертикально',
+            ],
+            bottom: PreferredSize(
+              child: Row(
+                children: _weekdays
+                    .map((e) => Expanded(
+                            child: Text(
+                          _weekdayFormat.format(e),
+                          textAlign: TextAlign.center,
+                        )))
+                    .toList(),
+              ),
+              preferredSize: const Size.fromHeight(16),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_view_month),
-              label: 'Горизонтально',
-            ),
-          ],
+          ),
+          body: ActivityCalendar(
+            activities: rl(),
+            fromColor: const Color(0xff202020),
+            toColor: Colors.green.shade500,
+            steps: 5,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            items: const [
+              BottomNavigationBarItem(
+                icon: RotatedBox(
+                  quarterTurns: 1,
+                  child: Icon(Icons.calendar_view_month),
+                ),
+                label: 'Вертикально',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_view_month),
+                label: 'Горизонтально',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -75,5 +130,6 @@ class ExampleApp extends StatelessWidget {
 
   static final r = Random();
 
-  static List<int> rl() => List.generate(365, (index) => r.nextInt(10));
+  static List<int> rl([int length = 365]) =>
+      List.generate(length, (index) => r.nextInt(10));
 }
