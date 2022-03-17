@@ -37,54 +37,7 @@ class ExampleApp extends StatelessWidget {
                 icon: Icon(Icons.adaptive.more),
                 // tooltip: MaterialLocalizations.of(context).showMenuTooltip,
                 onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: Text(
-                            'Settings',
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ),
-                        const Divider(
-                          height: 1,
-                          indent: 8,
-                          endIndent: 8,
-                        ),
-                        ListTile(
-                          title: const Text('Color from'),
-                          onTap: () {},
-                          trailing: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(32),
-                              ),
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          title: const Text('Color to'),
-                          onTap: () {},
-                          trailing: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(32),
-                              ),
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+                  _selectColor(context: context);
                 },
               ),
             ],
@@ -133,3 +86,59 @@ class ExampleApp extends StatelessWidget {
   static List<int> rl([int length = 365]) =>
       List.generate(length, (index) => r.nextInt(10));
 }
+
+Future<Color?> _selectColor({
+  required BuildContext context,
+}) =>
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Pick a color'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: GridView.count(
+            crossAxisCount: 5,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              Colors.red,
+              Colors.pink,
+              Colors.purple,
+              Colors.deepPurple,
+              Colors.indigo,
+              Colors.blue,
+              Colors.lightBlue,
+              Colors.cyan,
+              Colors.teal,
+              Colors.green,
+              Colors.lightGreen,
+              Colors.lime,
+              Colors.yellowAccent,
+              Colors.yellow,
+              Colors.amber,
+              Colors.orange,
+              Colors.deepOrange,
+              Colors.brown,
+              Colors.grey,
+              Colors.blueGrey,
+              Colors.black,
+              Colors.white,
+            ]
+                .map((color) => InkResponse(
+                      onTap: () => Navigator.of(context).pop(color),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: color,
+                        ),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+      ),
+    );
