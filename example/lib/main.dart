@@ -21,6 +21,9 @@ class ExampleApp extends StatelessWidget {
 
   const ExampleApp({Key? key}) : super(key: key);
 
+  static final Object _fromColorKey = Object();
+  static final Object _toColorKey = Object();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,7 +40,76 @@ class ExampleApp extends StatelessWidget {
                 icon: Icon(Icons.adaptive.more),
                 // tooltip: MaterialLocalizations.of(context).showMenuTooltip,
                 onPressed: () {
-                  _selectColor(context: context);
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: Text(
+                            'Settings',
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ),
+                        const Divider(
+                          height: 1,
+                          indent: 8,
+                          endIndent: 8,
+                        ),
+                        ListTile(
+                          title: const Text('Color from'),
+                          onTap: () async {
+                            final color = await _selectColor(context: context);
+                            if (color != null) {
+                              SharedAppData.setValue(
+                                context,
+                                _fromColorKey,
+                                color,
+                              );
+                            }
+                          },
+                          trailing: _ColorWidget(
+                            color: SharedAppData.getValue(
+                              context,
+                              _fromColorKey,
+                              () => Colors.grey,
+                            ),
+                          ),
+                          tileColor: SharedAppData.getValue<Object, Color>(
+                            context,
+                            _fromColorKey,
+                            () => Colors.grey,
+                          ).withOpacity(0.2),
+                        ),
+                        ListTile(
+                          title: const Text('Color to'),
+                          onTap: () async {
+                            final color = await _selectColor(context: context);
+                            if (color != null) {
+                              SharedAppData.setValue(
+                                context,
+                                _toColorKey,
+                                color,
+                              );
+                            }
+                          },
+                          trailing: _ColorWidget(
+                            color: SharedAppData.getValue(
+                              context,
+                              _toColorKey,
+                              () => Colors.green,
+                            ),
+                          ),
+                          tileColor: SharedAppData.getValue<Object, Color>(
+                            context,
+                            _toColorKey,
+                            () => Colors.grey,
+                          ).withOpacity(0.2),
+                        ),
+                      ],
+                    ),
+                  );
                 },
               ),
             ],
@@ -56,8 +128,16 @@ class ExampleApp extends StatelessWidget {
           ),
           body: ActivityCalendar(
             activities: rl(),
-            fromColor: const Color(0xff202020),
-            toColor: Colors.green.shade500,
+            fromColor: SharedAppData.getValue(
+              context,
+              _fromColorKey,
+              () => Colors.grey,
+            ),
+            toColor: SharedAppData.getValue(
+              context,
+              _toColorKey,
+              () => Colors.green,
+            ),
             steps: 5,
             borderRadius: BorderRadius.circular(4),
           ),
@@ -85,6 +165,27 @@ class ExampleApp extends StatelessWidget {
 
   static List<int> rl([int length = 365]) =>
       List.generate(length, (index) => r.nextInt(10));
+}
+
+class _ColorWidget extends StatelessWidget {
+  final Color color;
+
+  const _ColorWidget({
+    Key? key,
+    required this.color,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+      ),
+    );
+  }
 }
 
 Future<Color?> _selectColor({
@@ -128,14 +229,7 @@ Future<Color?> _selectColor({
             ]
                 .map((color) => InkResponse(
                       onTap: () => Navigator.of(context).pop(color),
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: color,
-                        ),
-                      ),
+                      child: _ColorWidget(color: color),
                     ))
                 .toList(),
           ),
