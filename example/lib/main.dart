@@ -104,6 +104,28 @@ class ExampleApp extends StatelessWidget {
                             ),
                           ),
                         ),
+                        ListTile(
+                          title: const Text('Weekday'),
+                          trailing: DropdownButtonHideUnderline(
+                            child: DropdownButton<int>(
+                              value: _sharedWeekday(context),
+                              items: [
+                                for (int i = 0; i < _weekdays.length; i++)
+                                  DropdownMenuItem(
+                                    value: i + 1,
+                                    child: Text(_weekdayFormat.format(
+                                      _weekdays[i],
+                                    )),
+                                  ),
+                              ],
+                              onChanged: (value) => SharedAppData.setValue(
+                                context,
+                                _weekdayKey,
+                                value,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -129,6 +151,7 @@ class ExampleApp extends StatelessWidget {
             toColor: _sharedToColor(context),
             steps: 5,
             borderRadius: BorderRadius.circular(4),
+            weekday: _sharedWeekday(context),
           ),
           bottomNavigationBar: BottomNavigationBar(
             items: const [
@@ -159,6 +182,7 @@ class ExampleApp extends StatelessWidget {
 final Object _fromColorKey = Object();
 final Object _toColorKey = Object();
 final Object _daysCountKey = Object();
+final Object _weekdayKey = Object();
 
 Color _sharedFromColor(BuildContext context) =>
     SharedAppData.getValue<Object, Color>(
@@ -178,6 +202,12 @@ int _sharedDaysCount(BuildContext context) => SharedAppData.getValue(
       context,
       _daysCountKey,
       () => 365,
+    );
+
+int _sharedWeekday(BuildContext context) => SharedAppData.getValue(
+      context,
+      _weekdayKey,
+      () => DateTime.now().weekday,
     );
 
 class _ColorMenuItem extends StatelessWidget {
