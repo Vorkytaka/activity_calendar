@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -17,6 +18,19 @@ class ActivityCalendar extends StatelessWidget {
   final IndexedOnTap? onTap;
   final BorderRadius borderRadius;
   final EdgeInsetsGeometry? padding;
+  final ScrollPhysics? physics;
+  final bool shrinkWrap;
+  final Clip clipBehavior;
+  final DragStartBehavior dragStartBehavior;
+  final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
+  final String? restorationId;
+  final int? semanticChildCount;
+  final double? cacheExtent;
+  final bool? primary;
+  final ScrollController? controller;
+  final bool addAutomaticKeepAlives;
+  final bool addRepaintBoundaries;
+  final bool addSemanticIndexes;
 
   ActivityCalendar({
     Key? key,
@@ -31,6 +45,19 @@ class ActivityCalendar extends StatelessWidget {
     this.onTap,
     this.borderRadius = const BorderRadius.all(Radius.circular(8)),
     this.padding,
+    this.physics,
+    this.shrinkWrap = false,
+    this.clipBehavior = Clip.hardEdge,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
+    this.restorationId,
+    this.semanticChildCount,
+    this.cacheExtent,
+    this.primary,
+    this.controller,
+    this.addAutomaticKeepAlives = true,
+    this.addRepaintBoundaries = true,
+    this.addSemanticIndexes = true,
   })  : _mapOfTiles = tiles(
           fromColor ?? Colors.grey,
           toColor ?? Colors.green,
@@ -88,6 +115,19 @@ class ActivityCalendar extends StatelessWidget {
       padding: padding,
       scrollDirection: scrollDirection,
       reverse: reverse,
+      physics: physics,
+      shrinkWrap: shrinkWrap,
+      clipBehavior: clipBehavior,
+      dragStartBehavior: dragStartBehavior,
+      keyboardDismissBehavior: keyboardDismissBehavior,
+      restorationId: restorationId,
+      semanticChildCount: semanticChildCount,
+      cacheExtent: cacheExtent,
+      primary: primary,
+      controller: controller,
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      addRepaintBoundaries: addRepaintBoundaries,
+      addSemanticIndexes: addSemanticIndexes,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
         crossAxisSpacing: spacing,
