@@ -21,9 +21,6 @@ class ExampleApp extends StatelessWidget {
 
   const ExampleApp({Key? key}) : super(key: key);
 
-  static final Object _fromColorKey = Object();
-  static final Object _toColorKey = Object();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -57,8 +54,8 @@ class ExampleApp extends StatelessWidget {
                           indent: 8,
                           endIndent: 8,
                         ),
-                        ListTile(
-                          title: const Text('Color from'),
+                        _ColorMenuItem(
+                          title: 'Color from',
                           onTap: () async {
                             final color = await _selectColor(context: context);
                             if (color != null) {
@@ -69,21 +66,10 @@ class ExampleApp extends StatelessWidget {
                               );
                             }
                           },
-                          trailing: _ColorWidget(
-                            color: SharedAppData.getValue(
-                              context,
-                              _fromColorKey,
-                              () => Colors.grey,
-                            ),
-                          ),
-                          tileColor: SharedAppData.getValue<Object, Color>(
-                            context,
-                            _fromColorKey,
-                            () => Colors.grey,
-                          ).withOpacity(0.2),
+                          color: _sharedFromColor(context),
                         ),
-                        ListTile(
-                          title: const Text('Color to'),
+                        _ColorMenuItem(
+                          title: 'Color to',
                           onTap: () async {
                             final color = await _selectColor(context: context);
                             if (color != null) {
@@ -94,18 +80,7 @@ class ExampleApp extends StatelessWidget {
                               );
                             }
                           },
-                          trailing: _ColorWidget(
-                            color: SharedAppData.getValue(
-                              context,
-                              _toColorKey,
-                              () => Colors.green,
-                            ),
-                          ),
-                          tileColor: SharedAppData.getValue<Object, Color>(
-                            context,
-                            _toColorKey,
-                            () => Colors.grey,
-                          ).withOpacity(0.2),
+                          color: _sharedToColor(context),
                         ),
                       ],
                     ),
@@ -128,16 +103,8 @@ class ExampleApp extends StatelessWidget {
           ),
           body: ActivityCalendar(
             activities: rl(),
-            fromColor: SharedAppData.getValue(
-              context,
-              _fromColorKey,
-              () => Colors.grey,
-            ),
-            toColor: SharedAppData.getValue(
-              context,
-              _toColorKey,
-              () => Colors.green,
-            ),
+            fromColor: _sharedFromColor(context),
+            toColor: _sharedToColor(context),
             steps: 5,
             borderRadius: BorderRadius.circular(4),
           ),
@@ -165,6 +132,46 @@ class ExampleApp extends StatelessWidget {
 
   static List<int> rl([int length = 365]) =>
       List.generate(length, (index) => r.nextInt(10));
+}
+
+final Object _fromColorKey = Object();
+final Object _toColorKey = Object();
+
+Color _sharedFromColor(BuildContext context) =>
+    SharedAppData.getValue<Object, Color>(
+      context,
+      _fromColorKey,
+      () => Colors.grey.shade900,
+    );
+
+Color _sharedToColor(BuildContext context) =>
+    SharedAppData.getValue<Object, Color>(
+      context,
+      _toColorKey,
+      () => Colors.green,
+    );
+
+class _ColorMenuItem extends StatelessWidget {
+  final VoidCallback onTap;
+  final Color color;
+  final String title;
+
+  const _ColorMenuItem({
+    Key? key,
+    required this.onTap,
+    required this.color,
+    required this.title,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(title),
+      onTap: onTap,
+      trailing: _ColorWidget(color: color),
+      tileColor: color.withOpacity(0.2),
+    );
+  }
 }
 
 class _ColorWidget extends StatelessWidget {
