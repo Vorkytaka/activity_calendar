@@ -9,6 +9,23 @@ void main() {
   runApp(const ExampleApp());
 }
 
+/// Data
+
+final _random = Random();
+
+List<int> _randomActivities([int length = 365, int max = 10]) =>
+    List.generate(length, (index) => _random.nextInt(max));
+
+final List<int> _activities = _randomActivities(1000, 10);
+
+final DateFormat _weekdayFormat = DateFormat.E();
+
+/// Names of weekdays from monday to sunday
+final List<String> _weekdays =
+    List.generate(7, (i) => _weekdayFormat.format(DateTime(2000, 0, 6 + i)));
+
+/// App
+
 class ExampleApp extends StatelessWidget {
   const ExampleApp({Key? key}) : super(key: key);
 
@@ -26,121 +43,7 @@ class ExampleApp extends StatelessWidget {
             actions: [
               IconButton(
                 icon: Icon(Icons.adaptive.more),
-                // tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: Text(
-                            'Settings',
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ),
-                        const Divider(
-                          height: 1,
-                          indent: 8,
-                          endIndent: 8,
-                        ),
-                        _ColorMenuItem(
-                          title: 'Color from',
-                          onTap: () async {
-                            final color = await _selectColor(context: context);
-                            if (color != null) {
-                              SharedAppData.setValue(
-                                context,
-                                _fromColorKey,
-                                color,
-                              );
-                            }
-                          },
-                          color: _sharedFromColor(context),
-                        ),
-                        _ColorMenuItem(
-                          title: 'Color to',
-                          onTap: () async {
-                            final color = await _selectColor(context: context);
-                            if (color != null) {
-                              SharedAppData.setValue(
-                                context,
-                                _toColorKey,
-                                color,
-                              );
-                            }
-                          },
-                          color: _sharedToColor(context),
-                        ),
-                        ListTile(
-                          title: const Text('Days count'),
-                          trailing: DropdownButtonHideUnderline(
-                            child: DropdownButton<int>(
-                              value: _sharedDaysCount(context),
-                              items: const [
-                                DropdownMenuItem(child: Text('1'), value: 1),
-                                DropdownMenuItem(child: Text('7'), value: 7),
-                                DropdownMenuItem(child: Text('30'), value: 30),
-                                DropdownMenuItem(
-                                    child: Text('365'), value: 365),
-                                DropdownMenuItem(
-                                    child: Text('1000'), value: 1000),
-                              ],
-                              onChanged: (value) => SharedAppData.setValue(
-                                context,
-                                _daysCountKey,
-                                value,
-                              ),
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          title: const Text('Weekday'),
-                          trailing: DropdownButtonHideUnderline(
-                            child: DropdownButton<int>(
-                              value: _sharedWeekday(context),
-                              items: [
-                                for (int i = 0; i < _weekdays.length; i++)
-                                  DropdownMenuItem(
-                                    value: i + 1,
-                                    child: Text(_weekdayFormat.format(
-                                      _weekdays[i],
-                                    )),
-                                  ),
-                              ],
-                              onChanged: (value) => SharedAppData.setValue(
-                                context,
-                                _weekdayKey,
-                                value,
-                              ),
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          title: const Text('Orientation'),
-                          trailing: DropdownButtonHideUnderline(
-                            child: DropdownButton<Axis>(
-                              value: _sharedOrientation(context),
-                              items: [
-                                for (final axis in Axis.values)
-                                  DropdownMenuItem(
-                                    value: axis,
-                                    child: Text(axis.toString()),
-                                  ),
-                              ],
-                              onChanged: (value) => SharedAppData.setValue(
-                                context,
-                                _orientationKey,
-                                value,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                },
+                onPressed: () => _showSettings(context: context),
               ),
             ],
           ),
@@ -151,21 +54,6 @@ class ExampleApp extends StatelessWidget {
   }
 }
 
-final DateFormat _weekdayFormat = DateFormat.E();
-final List<DateTime> _weekdays = List.generate(
-  7,
-  (i) => DateTime(
-    2000,
-    0,
-    6 + i,
-  ),
-);
-
-final r = Random();
-
-List<int> rl([int length = 365]) =>
-    List.generate(length, (index) => r.nextInt(10));
-
 class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -173,7 +61,7 @@ class _Body extends StatelessWidget {
     final isVertical = orientation == Axis.vertical;
 
     final calendar = ActivityCalendar(
-      activities: rl(_sharedDaysCount(context)),
+      activities: _activities.sublist(0, _sharedDaysCount(context)),
       fromColor: _sharedFromColor(context),
       toColor: _sharedToColor(context),
       steps: 5,
@@ -187,13 +75,17 @@ class _Body extends StatelessWidget {
       return Column(
         children: [
           Row(
-            children: _weekdays
-                .map((e) => Expanded(
-                        child: Text(
-                      _weekdayFormat.format(e),
+            children: [
+              for (final weekday in _weekdays)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      weekday,
                       textAlign: TextAlign.center,
-                    )))
-                .toList(),
+                    ),
+                  ),
+                ),
+            ],
           ),
           Expanded(
             child: calendar,
@@ -207,15 +99,17 @@ class _Body extends StatelessWidget {
       child: Row(
         children: [
           Column(
-            children: _weekdays
-                .map((e) => Expanded(
-                        child: Center(
-                      child: Text(
-                        _weekdayFormat.format(e),
-                        textAlign: TextAlign.center,
-                      ),
-                    )))
-                .toList(),
+            children: [
+              for (final weekday in _weekdays)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      weekday,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
           ),
           Expanded(
             child: calendar,
@@ -225,6 +119,8 @@ class _Body extends StatelessWidget {
     );
   }
 }
+
+/// SharedAppData section
 
 final Object _fromColorKey = Object();
 final Object _toColorKey = Object();
@@ -263,6 +159,8 @@ Axis _sharedOrientation(BuildContext context) => SharedAppData.getValue(
       _orientationKey,
       () => Axis.vertical,
     );
+
+/// Helpful widgets
 
 class _ColorMenuItem extends StatelessWidget {
   final VoidCallback onTap;
@@ -307,6 +205,8 @@ class _ColorWidget extends StatelessWidget {
     );
   }
 }
+
+/// Dialogs
 
 Future<Color?> _selectColor({
   required BuildContext context,
@@ -354,5 +254,115 @@ Future<Color?> _selectColor({
                 .toList(),
           ),
         ),
+      ),
+    );
+
+Future<void> _showSettings({required BuildContext context}) =>
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: Text(
+              'Settings',
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
+          const Divider(
+            height: 1,
+            indent: 8,
+            endIndent: 8,
+          ),
+          _ColorMenuItem(
+            title: 'Color from',
+            onTap: () async {
+              final color = await _selectColor(context: context);
+              if (color != null) {
+                SharedAppData.setValue(
+                  context,
+                  _fromColorKey,
+                  color,
+                );
+              }
+            },
+            color: _sharedFromColor(context),
+          ),
+          _ColorMenuItem(
+            title: 'Color to',
+            onTap: () async {
+              final color = await _selectColor(context: context);
+              if (color != null) {
+                SharedAppData.setValue(
+                  context,
+                  _toColorKey,
+                  color,
+                );
+              }
+            },
+            color: _sharedToColor(context),
+          ),
+          ListTile(
+            title: const Text('Days count'),
+            trailing: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _sharedDaysCount(context),
+                items: const [
+                  DropdownMenuItem(child: Text('1'), value: 1),
+                  DropdownMenuItem(child: Text('7'), value: 7),
+                  DropdownMenuItem(child: Text('30'), value: 30),
+                  DropdownMenuItem(child: Text('365'), value: 365),
+                  DropdownMenuItem(child: Text('1000'), value: 1000),
+                ],
+                onChanged: (value) => SharedAppData.setValue(
+                  context,
+                  _daysCountKey,
+                  value,
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text('Weekday'),
+            trailing: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _sharedWeekday(context),
+                items: [
+                  for (int i = 0; i < _weekdays.length; i++)
+                    DropdownMenuItem(
+                      value: i + 1,
+                      child: Text(_weekdays[i]),
+                    ),
+                ],
+                onChanged: (value) => SharedAppData.setValue(
+                  context,
+                  _weekdayKey,
+                  value,
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text('Orientation'),
+            trailing: DropdownButtonHideUnderline(
+              child: DropdownButton<Axis>(
+                value: _sharedOrientation(context),
+                items: [
+                  for (final axis in Axis.values)
+                    DropdownMenuItem(
+                      value: axis,
+                      child: Text(axis.toString()),
+                    ),
+                ],
+                onChanged: (value) => SharedAppData.setValue(
+                  context,
+                  _orientationKey,
+                  value,
+                ),
+              ),
+            ),
+          )
+        ],
       ),
     );
