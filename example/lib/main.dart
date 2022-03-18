@@ -82,6 +82,28 @@ class ExampleApp extends StatelessWidget {
                           },
                           color: _sharedToColor(context),
                         ),
+                        ListTile(
+                          title: const Text('Days count'),
+                          trailing: DropdownButtonHideUnderline(
+                            child: DropdownButton<int>(
+                              value: _sharedDaysCount(context),
+                              items: const [
+                                DropdownMenuItem(child: Text('1'), value: 1),
+                                DropdownMenuItem(child: Text('7'), value: 7),
+                                DropdownMenuItem(child: Text('30'), value: 30),
+                                DropdownMenuItem(
+                                    child: Text('365'), value: 365),
+                                DropdownMenuItem(
+                                    child: Text('1000'), value: 1000),
+                              ],
+                              onChanged: (value) => SharedAppData.setValue(
+                                context,
+                                _daysCountKey,
+                                value,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -102,7 +124,7 @@ class ExampleApp extends StatelessWidget {
             ),
           ),
           body: ActivityCalendar(
-            activities: rl(),
+            activities: rl(_sharedDaysCount(context)),
             fromColor: _sharedFromColor(context),
             toColor: _sharedToColor(context),
             steps: 5,
@@ -136,6 +158,7 @@ class ExampleApp extends StatelessWidget {
 
 final Object _fromColorKey = Object();
 final Object _toColorKey = Object();
+final Object _daysCountKey = Object();
 
 Color _sharedFromColor(BuildContext context) =>
     SharedAppData.getValue<Object, Color>(
@@ -149,6 +172,12 @@ Color _sharedToColor(BuildContext context) =>
       context,
       _toColorKey,
       () => Colors.green,
+    );
+
+int _sharedDaysCount(BuildContext context) => SharedAppData.getValue(
+      context,
+      _daysCountKey,
+      () => 365,
     );
 
 class _ColorMenuItem extends StatelessWidget {
