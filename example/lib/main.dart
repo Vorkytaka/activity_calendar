@@ -10,16 +10,6 @@ void main() {
 }
 
 class ExampleApp extends StatelessWidget {
-  static final DateFormat _weekdayFormat = DateFormat.E();
-  static final List<DateTime> _weekdays = List.generate(
-    7,
-    (i) => DateTime(
-      2000,
-      0,
-      6 + i,
-    ),
-  );
-
   const ExampleApp({Key? key}) : super(key: key);
 
   @override
@@ -153,43 +143,87 @@ class ExampleApp extends StatelessWidget {
                 },
               ),
             ],
-            bottom: PreferredSize(
-              child: Row(
-                children: _weekdays
-                    .map((e) => Expanded(
-                            child: Text(
-                          _weekdayFormat.format(e),
-                          textAlign: TextAlign.center,
-                        )))
-                    .toList(),
-              ),
-              preferredSize: const Size.fromHeight(16),
-            ),
           ),
-          body: SizedBox(
-            height: _sharedOrientation(context) == Axis.horizontal
-                ? 200
-                : double.maxFinite,
-            child: ActivityCalendar(
-              activities: rl(_sharedDaysCount(context)),
-              fromColor: _sharedFromColor(context),
-              toColor: _sharedToColor(context),
-              steps: 5,
-              borderRadius: BorderRadius.circular(4),
-              weekday: _sharedWeekday(context),
-              scrollDirection: _sharedOrientation(context),
-              reverse: _sharedOrientation(context) == Axis.horizontal,
-            ),
-          ),
+          body: _Body(),
         ),
       ),
     );
   }
+}
 
-  static final r = Random();
+final DateFormat _weekdayFormat = DateFormat.E();
+final List<DateTime> _weekdays = List.generate(
+  7,
+  (i) => DateTime(
+    2000,
+    0,
+    6 + i,
+  ),
+);
 
-  static List<int> rl([int length = 365]) =>
-      List.generate(length, (index) => r.nextInt(10));
+final r = Random();
+
+List<int> rl([int length = 365]) =>
+    List.generate(length, (index) => r.nextInt(10));
+
+class _Body extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final orientation = _sharedOrientation(context);
+    final isVertical = orientation == Axis.vertical;
+
+    final calendar = ActivityCalendar(
+      activities: rl(_sharedDaysCount(context)),
+      fromColor: _sharedFromColor(context),
+      toColor: _sharedToColor(context),
+      steps: 5,
+      borderRadius: BorderRadius.circular(4),
+      weekday: _sharedWeekday(context),
+      scrollDirection: _sharedOrientation(context),
+      reverse: _sharedOrientation(context) == Axis.horizontal,
+    );
+
+    if (isVertical) {
+      return Column(
+        children: [
+          Row(
+            children: _weekdays
+                .map((e) => Expanded(
+                        child: Text(
+                      _weekdayFormat.format(e),
+                      textAlign: TextAlign.center,
+                    )))
+                .toList(),
+          ),
+          Expanded(
+            child: calendar,
+          ),
+        ],
+      );
+    }
+
+    return SizedBox(
+      height: 200,
+      child: Row(
+        children: [
+          Column(
+            children: _weekdays
+                .map((e) => Expanded(
+                        child: Center(
+                      child: Text(
+                        _weekdayFormat.format(e),
+                        textAlign: TextAlign.center,
+                      ),
+                    )))
+                .toList(),
+          ),
+          Expanded(
+            child: calendar,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 final Object _fromColorKey = Object();
