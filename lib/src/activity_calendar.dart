@@ -101,7 +101,7 @@ class ActivityCalendar extends StatelessWidget {
         }
 
         final activity = activities[index];
-        final segment = getSegment(activity);
+        final segment = _findSegment(activity);
 
         Widget item = _mapOfTiles[segment]!;
 
@@ -117,7 +117,10 @@ class ActivityCalendar extends StatelessWidget {
     );
   }
 
-  int getSegment(int activity) {
-    return _mapOfTiles.keys.firstWhere((key) => activity <= key);
+  int _findSegment(int activity) {
+    return _mapOfTiles.keys.firstWhere(
+      (key) => activity <= key,
+      orElse: () => _mapOfTiles.keys.last,
+    );
   }
 }
