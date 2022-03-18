@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:activity_calendar/activity_calendar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -126,6 +127,26 @@ class ExampleApp extends StatelessWidget {
                             ),
                           ),
                         ),
+                        ListTile(
+                          title: const Text('Orientation'),
+                          trailing: DropdownButtonHideUnderline(
+                            child: DropdownButton<Axis>(
+                              value: _sharedOrientation(context),
+                              items: [
+                                for (final axis in Axis.values)
+                                  DropdownMenuItem(
+                                    value: axis,
+                                    child: Text(axis.toString()),
+                                  ),
+                              ],
+                              onChanged: (value) => SharedAppData.setValue(
+                                context,
+                                _orientationKey,
+                                value,
+                              ),
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   );
@@ -145,28 +166,20 @@ class ExampleApp extends StatelessWidget {
               preferredSize: const Size.fromHeight(16),
             ),
           ),
-          body: ActivityCalendar(
-            activities: rl(_sharedDaysCount(context)),
-            fromColor: _sharedFromColor(context),
-            toColor: _sharedToColor(context),
-            steps: 5,
-            borderRadius: BorderRadius.circular(4),
-            weekday: _sharedWeekday(context),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            items: const [
-              BottomNavigationBarItem(
-                icon: RotatedBox(
-                  quarterTurns: 1,
-                  child: Icon(Icons.calendar_view_month),
-                ),
-                label: 'Вертикально',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_view_month),
-                label: 'Горизонтально',
-              ),
-            ],
+          body: SizedBox(
+            height: _sharedOrientation(context) == Axis.horizontal
+                ? 200
+                : double.maxFinite,
+            child: ActivityCalendar(
+              activities: rl(_sharedDaysCount(context)),
+              fromColor: _sharedFromColor(context),
+              toColor: _sharedToColor(context),
+              steps: 5,
+              borderRadius: BorderRadius.circular(4),
+              weekday: _sharedWeekday(context),
+              scrollDirection: _sharedOrientation(context),
+              reverse: _sharedOrientation(context) == Axis.horizontal,
+            ),
           ),
         ),
       ),
@@ -183,6 +196,7 @@ final Object _fromColorKey = Object();
 final Object _toColorKey = Object();
 final Object _daysCountKey = Object();
 final Object _weekdayKey = Object();
+final Object _orientationKey = Object();
 
 Color _sharedFromColor(BuildContext context) =>
     SharedAppData.getValue<Object, Color>(
@@ -208,6 +222,12 @@ int _sharedWeekday(BuildContext context) => SharedAppData.getValue(
       context,
       _weekdayKey,
       () => DateTime.now().weekday,
+    );
+
+Axis _sharedOrientation(BuildContext context) => SharedAppData.getValue(
+      context,
+      _orientationKey,
+      () => Axis.vertical,
     );
 
 class _ColorMenuItem extends StatelessWidget {
