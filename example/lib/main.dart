@@ -128,18 +128,18 @@ final Object _daysCountKey = Object();
 final Object _weekdayKey = Object();
 final Object _orientationKey = Object();
 
-Color _sharedFromColor(BuildContext context) =>
-    SharedAppData.getValue<Object, Color>(
+Color? _sharedFromColor(BuildContext context) =>
+    SharedAppData.getValue<Object, Color?>(
       context,
       _fromColorKey,
-      () => Colors.grey.shade900,
+      () => null,
     );
 
-Color _sharedToColor(BuildContext context) =>
-    SharedAppData.getValue<Object, Color>(
+Color? _sharedToColor(BuildContext context) =>
+    SharedAppData.getValue<Object, Color?>(
       context,
       _toColorKey,
-      () => Colors.green,
+      () => null,
     );
 
 int _sharedDaysCount(BuildContext context) => SharedAppData.getValue(
@@ -287,7 +287,8 @@ Future<void> _showSettings({required BuildContext context}) =>
                 );
               }
             },
-            color: _sharedFromColor(context),
+            color: _sharedFromColor(context) ??
+                Theme.of(context).colorScheme.surface,
           ),
           _ColorMenuItem(
             title: 'Color to',
@@ -301,7 +302,8 @@ Future<void> _showSettings({required BuildContext context}) =>
                 );
               }
             },
-            color: _sharedToColor(context),
+            color: _sharedToColor(context) ??
+                Theme.of(context).colorScheme.primary,
           ),
           ListTile(
             title: const Text('Days count'),

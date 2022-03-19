@@ -1,37 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
 typedef IndexedOnTap = void Function(int index);
 
 class ActivityCalendar extends StatelessWidget {
-  final Color? fromColor;
-  final Color? toColor;
-  final int steps;
-  final List<int> activities;
-  final Map<int, Widget> _mapOfTiles;
-  final int? weekday;
-  final double spacing;
-  final Axis scrollDirection;
-  final bool reverse;
-  final IndexedOnTap? onTap;
-  final BorderRadius borderRadius;
-  final EdgeInsetsGeometry? padding;
-  final ScrollPhysics? physics;
-  final bool shrinkWrap;
-  final Clip clipBehavior;
-  final DragStartBehavior dragStartBehavior;
-  final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
-  final String? restorationId;
-  final int? semanticChildCount;
-  final double? cacheExtent;
-  final bool? primary;
-  final ScrollController? controller;
-  final bool addAutomaticKeepAlives;
-  final bool addRepaintBoundaries;
-  final bool addSemanticIndexes;
-
   ActivityCalendar({
     Key? key,
     this.fromColor,
@@ -58,14 +30,32 @@ class ActivityCalendar extends StatelessWidget {
     this.addAutomaticKeepAlives = true,
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
-  })  : _mapOfTiles = tiles(
-          fromColor ?? Colors.grey,
-          toColor ?? Colors.green,
-          steps,
-          activities.fold(0, (prev, curr) => curr > prev ? curr : prev),
-          borderRadius,
-        ),
-        super(key: key);
+  }) : super(key: key);
+
+  final Color? fromColor;
+  final Color? toColor;
+  final int steps;
+  final List<int> activities;
+  final int? weekday;
+  final double spacing;
+  final Axis scrollDirection;
+  final bool reverse;
+  final IndexedOnTap? onTap;
+  final BorderRadius borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final ScrollPhysics? physics;
+  final bool shrinkWrap;
+  final Clip clipBehavior;
+  final DragStartBehavior dragStartBehavior;
+  final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
+  final String? restorationId;
+  final int? semanticChildCount;
+  final double? cacheExtent;
+  final bool? primary;
+  final ScrollController? controller;
+  final bool addAutomaticKeepAlives;
+  final bool addRepaintBoundaries;
+  final bool addSemanticIndexes;
 
   static int calculateIndex(int i, int weekday) {
     return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - weekday);
@@ -111,6 +101,22 @@ class ActivityCalendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final weekday = this.weekday ?? DateTime.now().weekday;
+
+    final mapOfTiles = tiles(
+      fromColor ?? Theme.of(context).colorScheme.surface,
+      toColor ?? Theme.of(context).colorScheme.primary,
+      steps,
+      activities.fold(0, (prev, curr) => curr > prev ? curr : prev),
+      borderRadius,
+    );
+
+    int _findSegment(int activity) {
+      return mapOfTiles.keys.firstWhere(
+        (key) => activity <= key,
+        orElse: () => mapOfTiles.keys.last,
+      );
+    }
+
     return GridView.builder(
       padding: padding,
       scrollDirection: scrollDirection,
@@ -143,7 +149,7 @@ class ActivityCalendar extends StatelessWidget {
         final activity = activities[index];
         final segment = _findSegment(activity);
 
-        Widget item = _mapOfTiles[segment]!;
+        Widget item = mapOfTiles[segment]!;
 
         if (onTap != null) {
           item = GestureDetector(
@@ -154,13 +160,6 @@ class ActivityCalendar extends StatelessWidget {
 
         return item;
       },
-    );
-  }
-
-  int _findSegment(int activity) {
-    return _mapOfTiles.keys.firstWhere(
-      (key) => activity <= key,
-      orElse: () => _mapOfTiles.keys.last,
     );
   }
 }
