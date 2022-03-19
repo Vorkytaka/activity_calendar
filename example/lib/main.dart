@@ -104,6 +104,7 @@ class _Body extends StatelessWidget {
       weekday: _sharedWeekday(context),
       scrollDirection: _sharedOrientation(context),
       reverse: _sharedOrientation(context) == Axis.horizontal,
+      tooltipBuilder: (i) => '${_activities[i]} contributions',
     );
 
     if (isVertical) {

@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 
 typedef IndexedOnTap = void Function(int index);
 
+typedef TooltipBuilder = String Function(int index);
+
 class ActivityCalendar extends StatelessWidget {
-  ActivityCalendar({
+  const ActivityCalendar({
     Key? key,
     this.fromColor,
     this.toColor,
@@ -30,6 +32,7 @@ class ActivityCalendar extends StatelessWidget {
     this.addAutomaticKeepAlives = true,
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
+    this.tooltipBuilder,
   }) : super(key: key);
 
   final Color? fromColor;
@@ -56,6 +59,7 @@ class ActivityCalendar extends StatelessWidget {
   final bool addAutomaticKeepAlives;
   final bool addRepaintBoundaries;
   final bool addSemanticIndexes;
+  final TooltipBuilder? tooltipBuilder;
 
   static int calculateIndex(int i, int weekday) {
     return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - weekday);
@@ -117,6 +121,12 @@ class ActivityCalendar extends StatelessWidget {
       );
     }
 
+    final segments = List.generate(
+      activities.length,
+      (i) => _findSegment(activities[i]),
+      growable: false,
+    );
+
     return GridView.builder(
       padding: padding,
       scrollDirection: scrollDirection,
@@ -139,21 +149,26 @@ class ActivityCalendar extends StatelessWidget {
         crossAxisSpacing: spacing,
         mainAxisSpacing: spacing,
       ),
-      itemCount: calculateChildCount(activities, weekday),
+      itemCount: calculateChildCount(segments, weekday),
       itemBuilder: (context, i) {
         final index = calculateIndex(i, weekday);
         if (index < 0 || index >= activities.length) {
           return const SizedBox();
         }
 
-        final activity = activities[index];
-        final segment = _findSegment(activity);
-
+        final segment = segments[index];
         Widget item = mapOfTiles[segment]!;
 
         if (onTap != null) {
           item = GestureDetector(
             onTap: () => onTap!(index),
+            child: item,
+          );
+        }
+
+        if (tooltipBuilder != null) {
+          item = Tooltip(
+            message: tooltipBuilder!(index),
             child: item,
           );
         }
