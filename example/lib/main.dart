@@ -39,6 +39,8 @@ class ExampleApp extends StatelessWidget {
         builder: (context) => Scaffold(
           appBar: AppBar(
             title: const Text('Activity Calendar Example'),
+            backgroundColor: Colors.grey[850],
+            elevation: 3,
             centerTitle: false,
             actions: [
               IconButton(
@@ -46,6 +48,39 @@ class ExampleApp extends StatelessWidget {
                 onPressed: () => _showSettings(context: context),
               ),
             ],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(24),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Wrap(
+                    spacing: 4,
+                    runAlignment: WrapAlignment.start,
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const Text('Less'),
+                      ...ActivityCalendar.tiles(
+                        _sharedFromColor(context),
+                        _sharedToColor(context),
+                        5,
+                        5,
+                        const BorderRadius.all(Radius.circular(4)),
+                      ).values.map((e) => SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: e,
+                          )),
+                      const Text('More'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
           body: _Body(),
         ),
@@ -128,18 +163,18 @@ final Object _daysCountKey = Object();
 final Object _weekdayKey = Object();
 final Object _orientationKey = Object();
 
-Color? _sharedFromColor(BuildContext context) =>
-    SharedAppData.getValue<Object, Color?>(
+Color _sharedFromColor(BuildContext context) =>
+    SharedAppData.getValue<Object, Color>(
       context,
       _fromColorKey,
-      () => null,
+      () => Theme.of(context).colorScheme.surface,
     );
 
-Color? _sharedToColor(BuildContext context) =>
-    SharedAppData.getValue<Object, Color?>(
+Color _sharedToColor(BuildContext context) =>
+    SharedAppData.getValue<Object, Color>(
       context,
       _toColorKey,
-      () => null,
+      () => Theme.of(context).colorScheme.primary,
     );
 
 int _sharedDaysCount(BuildContext context) => SharedAppData.getValue(
@@ -287,8 +322,7 @@ Future<void> _showSettings({required BuildContext context}) =>
                 );
               }
             },
-            color: _sharedFromColor(context) ??
-                Theme.of(context).colorScheme.surface,
+            color: _sharedFromColor(context),
           ),
           _ColorMenuItem(
             title: 'Color to',
@@ -302,8 +336,7 @@ Future<void> _showSettings({required BuildContext context}) =>
                 );
               }
             },
-            color: _sharedToColor(context) ??
-                Theme.of(context).colorScheme.primary,
+            color: _sharedToColor(context),
           ),
           ListTile(
             title: const Text('Days count'),
