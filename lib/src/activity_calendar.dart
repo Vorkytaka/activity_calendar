@@ -95,7 +95,7 @@ class ActivityCalendar extends StatelessWidget {
   final bool addSemanticIndexes;
 
   /// Helper method that calculate the actual index of item.
-  static int calculateIndex(int i, int weekday) {
+  static int _calculateIndex(int i, int weekday) {
     return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - weekday);
   }
 
@@ -188,7 +188,7 @@ class ActivityCalendar extends StatelessWidget {
       ),
       itemCount: _calculateChildCount(segments, weekday),
       itemBuilder: (context, i) {
-        final index = calculateIndex(i, weekday);
+        final index = _calculateIndex(i, weekday);
         if (index < 0 || index >= activities.length) {
           return const SizedBox();
         }

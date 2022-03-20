@@ -97,52 +97,96 @@ void main() {
   });
 
   group('calculateIndex', () {
-    // helper function to test `calculateIndex`
-    void _calculateIndex(int weekday, List<int> matchers) {
-      assert(matchers.length > 1);
-      for (int i = 0; i < matchers.length; i++) {
-        expect(
-          ActivityCalendar.calculateIndex(i, weekday),
-          matchers[i],
-          reason: 'Error on matcher[$i]',
-        );
+    Future<void> __calculateIndex(
+      WidgetTester tester,
+      int weekday,
+      List<int> expectIndexes,
+    ) async {
+      assert(weekday > 0 && weekday <= 7);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ActivityCalendar(
+              activities: List.generate(expectIndexes.length, (index) => index),
+              weekday: weekday,
+              tooltipBuilder: (i) => '$i',
+            ),
+          ),
+        ),
+      );
+
+      final tooltips = tester
+          .widgetList<Tooltip>(find.byType(Tooltip))
+          .toList(growable: false);
+      for (int i = 0; i < tooltips.length; i++) {
+        final tooltip = tooltips[i];
+        final index = int.parse(tooltip.message!);
+        expect(index, expectIndexes[i]);
       }
     }
 
-    test(
-        'Sunday',
-        () => _calculateIndex(DateTime.sunday,
-            [6, 5, 4, 3, 2, 1, 0, 13, 12, 11, 10, 9, 8, 7, 20, 19, 18]));
+    testWidgets(
+      'Sunday',
+      (WidgetTester tester) async => __calculateIndex(
+        tester,
+        DateTime.sunday,
+        [6, 5, 4, 3, 2, 1, 0, 13, 12, 11, 10, 9, 8, 7],
+      ),
+    );
 
-    test(
-        'Saturday',
-        () => _calculateIndex(DateTime.saturday,
-            [5, 4, 3, 2, 1, 0, -1, 12, 11, 10, 9, 8, 7, 6, 19, 18, 17]));
+    testWidgets(
+      'Saturday',
+      (WidgetTester tester) async => __calculateIndex(
+        tester,
+        DateTime.saturday,
+        [5, 4, 3, 2, 1, 0, 12, 11, 10, 9, 8, 7, 6],
+      ),
+    );
 
-    test(
-        'Friday',
-        () => _calculateIndex(DateTime.friday,
-            [4, 3, 2, 1, 0, -1, -2, 11, 10, 9, 8, 7, 6, 5, 18, 17, 16]));
+    testWidgets(
+      'Friday',
+      (WidgetTester tester) async => __calculateIndex(
+        tester,
+        DateTime.friday,
+        [4, 3, 2, 1, 0, 11, 10, 9, 8, 7, 6, 5],
+      ),
+    );
 
-    test(
-        'Thusday',
-        () => _calculateIndex(DateTime.thursday,
-            [3, 2, 1, 0, -1, -2, -3, 10, 9, 8, 7, 6, 5, 4, 17, 16, 15]));
+    testWidgets(
+      'Thursday',
+      (WidgetTester tester) async => __calculateIndex(
+        tester,
+        DateTime.thursday,
+        [3, 2, 1, 0, 10, 9, 8, 7, 6, 5, 4],
+      ),
+    );
 
-    test(
-        'Wednesday',
-        () => _calculateIndex(DateTime.wednesday,
-            [2, 1, 0, -1, -2, -3, -4, 9, 8, 7, 6, 5, 4, 3, 16, 15, 14]));
+    testWidgets(
+      'Wednesday',
+      (WidgetTester tester) async => __calculateIndex(
+        tester,
+        DateTime.wednesday,
+        [2, 1, 0, 9, 8, 7, 6, 5, 4, 3],
+      ),
+    );
 
-    test(
-        'Tuesday',
-        () => _calculateIndex(DateTime.tuesday,
-            [1, 0, -1, -2, -3, -4, -5, 8, 7, 6, 5, 4, 3, 2, 15, 14, 13]));
+    testWidgets(
+      'Tuesday',
+      (WidgetTester tester) async => __calculateIndex(
+        tester,
+        DateTime.tuesday,
+        [1, 0, 8, 7, 6, 5, 4, 3, 2],
+      ),
+    );
 
-    test(
-        'Monday',
-        () => _calculateIndex(DateTime.monday,
-            [0, -1, -2, -3, -4, -5, -6, 7, 6, 5, 4, 3, 2, 1, 14, 13, 12]));
+    testWidgets(
+      'Monday',
+      (WidgetTester tester) async => __calculateIndex(
+        tester,
+        DateTime.monday,
+        [0, 7, 6, 5, 4, 3, 2, 1, 14, 13, 12, 11, 10, 9, 8],
+      ),
+    );
   });
 
   testWidgets('Default values', (WidgetTester tester) async {
@@ -201,20 +245,5 @@ void main() {
         expectColors[i],
       );
     }
-  });
-
-  testWidgets('Default values', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: ActivityCalendar(
-            activities: [1, 2, 3, 4, 5],
-          ),
-        ),
-      ),
-    );
-
-    final widget = tester.widget<GridView>(find.byType(GridView));
-    print((widget.childrenDelegate as SliverChildBuilderDelegate).childCount);
   });
 }
