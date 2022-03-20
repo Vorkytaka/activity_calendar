@@ -3,196 +3,112 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('calculateChildCount', () {
-    // *******
-    // *******
-    // ------*
-    test('Sunday', () {
-      const day = DateTime.sunday;
+  group('_calculateChildCount', () {
+    Future<void> _calculateChildCount(
+      WidgetTester tester,
+      int weekday,
+      List<int> expectChildCount,
+    ) async {
+      assert(weekday > 0 && weekday <= 7);
+      for (int i = 0; i < expectChildCount.length; i++) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ActivityCalendar(
+                activities: List.generate(i + 1, (index) => index),
+                weekday: weekday,
+              ),
+            ),
+          ),
+        );
 
-      expect(ActivityCalendar.calculateChildCount(_list(1), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(2), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(3), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(4), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(5), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(6), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(7), day), 7);
+        final widget = tester.widget<GridView>(find.byType(GridView));
+        final delegate = widget.childrenDelegate as SliverChildBuilderDelegate;
 
-      expect(ActivityCalendar.calculateChildCount(_list(8), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(9), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(10), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(11), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(12), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(13), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(14), day), 14);
+        expect(delegate.childCount, expectChildCount[i]);
+      }
+    }
 
-      expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
-    });
-
-    // ******-
-    // *******
-    // -----**
-    test('Saturday', () {
-      const day = DateTime.saturday;
-
-      expect(ActivityCalendar.calculateChildCount(_list(1), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(2), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(3), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(4), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(5), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(6), day), 7);
-
-      expect(ActivityCalendar.calculateChildCount(_list(7), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(8), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(9), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(10), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(11), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(12), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(13), day), 14);
-
-      expect(ActivityCalendar.calculateChildCount(_list(14), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
-    });
+    testWidgets(
+      'Sunday',
+      (WidgetTester tester) async => _calculateChildCount(
+        tester,
+        DateTime.sunday,
+        [7, 7, 7, 7, 7, 7, 7, 14, 14, 14, 14, 14, 14, 14, 21],
+      ),
+    );
 
     // *****--
     // *******
     // ----***
-    test('Friday', () {
-      const day = DateTime.friday;
+    testWidgets(
+      'Saturday',
+      (WidgetTester tester) async => _calculateChildCount(
+        tester,
+        DateTime.saturday,
+        [7, 7, 7, 7, 7, 7, 14, 14, 14, 14, 14, 14, 14, 21, 21],
+      ),
+    );
 
-      expect(ActivityCalendar.calculateChildCount(_list(1), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(2), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(3), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(4), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(5), day), 7);
+    testWidgets(
+      'Friday',
+      (WidgetTester tester) async => _calculateChildCount(
+        tester,
+        DateTime.friday,
+        [7, 7, 7, 7, 7, 14, 14, 14, 14, 14, 14, 14, 21, 21, 21],
+      ),
+    );
 
-      expect(ActivityCalendar.calculateChildCount(_list(6), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(7), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(8), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(9), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(10), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(11), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(12), day), 14);
+    testWidgets(
+      'Thursday',
+      (WidgetTester tester) async => _calculateChildCount(
+        tester,
+        DateTime.thursday,
+        [7, 7, 7, 7, 14, 14, 14, 14, 14, 14, 14, 21, 21, 21, 21],
+      ),
+    );
 
-      expect(ActivityCalendar.calculateChildCount(_list(13), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(14), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
-    });
+    testWidgets(
+      'Wednesday',
+      (WidgetTester tester) async => _calculateChildCount(
+        tester,
+        DateTime.wednesday,
+        [7, 7, 7, 14, 14, 14, 14, 14, 14, 14, 21, 21, 21, 21, 21],
+      ),
+    );
 
-    // ****---
-    // *******
-    // ---****
-    test('Thursday', () {
-      const day = DateTime.thursday;
+    testWidgets(
+      'Tuesday',
+      (WidgetTester tester) async => _calculateChildCount(
+        tester,
+        DateTime.tuesday,
+        [7, 7, 14, 14, 14, 14, 14, 14, 14, 21, 21, 21, 21, 21, 21],
+      ),
+    );
 
-      expect(ActivityCalendar.calculateChildCount(_list(1), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(2), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(3), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(4), day), 7);
-
-      expect(ActivityCalendar.calculateChildCount(_list(5), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(6), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(7), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(8), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(9), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(10), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(11), day), 14);
-
-      expect(ActivityCalendar.calculateChildCount(_list(12), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(13), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(14), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
-    });
-
-    // ***----
-    // *******
-    // --*****
-    test('Wednesday', () {
-      const day = DateTime.wednesday;
-
-      expect(ActivityCalendar.calculateChildCount(_list(1), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(2), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(3), day), 7);
-
-      expect(ActivityCalendar.calculateChildCount(_list(4), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(5), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(6), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(7), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(8), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(9), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(10), day), 14);
-
-      expect(ActivityCalendar.calculateChildCount(_list(11), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(12), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(13), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(14), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
-    });
-
-    // **-----
-    // *******
-    // -******
-    test('Tuesday', () {
-      const day = DateTime.tuesday;
-
-      expect(ActivityCalendar.calculateChildCount(_list(1), day), 7);
-      expect(ActivityCalendar.calculateChildCount(_list(2), day), 7);
-
-      expect(ActivityCalendar.calculateChildCount(_list(3), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(4), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(5), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(6), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(7), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(8), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(9), day), 14);
-
-      expect(ActivityCalendar.calculateChildCount(_list(10), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(11), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(12), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(13), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(14), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
-    });
-
-    // *------
-    // *******
-    // *******
-    test('Monday', () {
-      const day = DateTime.monday;
-
-      expect(ActivityCalendar.calculateChildCount(_list(1), day), 7);
-
-      expect(ActivityCalendar.calculateChildCount(_list(2), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(3), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(4), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(5), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(6), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(7), day), 14);
-      expect(ActivityCalendar.calculateChildCount(_list(8), day), 14);
-
-      expect(ActivityCalendar.calculateChildCount(_list(9), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(10), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(11), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(12), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(13), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(14), day), 21);
-      expect(ActivityCalendar.calculateChildCount(_list(15), day), 21);
-    });
+    testWidgets(
+      'Monday',
+      (WidgetTester tester) async => _calculateChildCount(
+        tester,
+        DateTime.monday,
+        [7, 14, 14, 14, 14, 14, 14, 14, 21, 21, 21, 21, 21, 21, 21],
+      ),
+    );
   });
 
-  // helper function to test `calculateIndex`
-  void _calculateIndex(int weekday, List<int> matchers) {
-    assert(matchers.length > 1);
-    for (int i = 0; i < matchers.length; i++) {
-      expect(
-        ActivityCalendar.calculateIndex(i, weekday),
-        matchers[i],
-        reason: 'Error on matcher[$i]',
-      );
-    }
-  }
-
   group('calculateIndex', () {
+    // helper function to test `calculateIndex`
+    void _calculateIndex(int weekday, List<int> matchers) {
+      assert(matchers.length > 1);
+      for (int i = 0; i < matchers.length; i++) {
+        expect(
+          ActivityCalendar.calculateIndex(i, weekday),
+          matchers[i],
+          reason: 'Error on matcher[$i]',
+        );
+      }
+    }
+
     test(
         'Sunday',
         () => _calculateIndex(DateTime.sunday,
@@ -286,6 +202,19 @@ void main() {
       );
     }
   });
-}
 
-List<int> _list(int length) => List.generate(length, (index) => index);
+  testWidgets('Default values', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: ActivityCalendar(
+            activities: [1, 2, 3, 4, 5],
+          ),
+        ),
+      ),
+    );
+
+    final widget = tester.widget<GridView>(find.byType(GridView));
+    print((widget.childrenDelegate as SliverChildBuilderDelegate).childCount);
+  });
+}

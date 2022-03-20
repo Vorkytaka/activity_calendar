@@ -100,7 +100,7 @@ class ActivityCalendar extends StatelessWidget {
   }
 
   /// Helper method that calculate the actual child count for given data.
-  static int calculateChildCount(List<int> activities, int weekday) {
+  static int _calculateChildCount(List<int> activities, int weekday) {
     return activities.length + // actually days
         (7 - weekday) + // skip in first line
         (7 - (activities.length + 7 - weekday) % 7) % 7; // skip on last line
@@ -186,7 +186,7 @@ class ActivityCalendar extends StatelessWidget {
         crossAxisSpacing: spacing,
         mainAxisSpacing: spacing,
       ),
-      itemCount: calculateChildCount(segments, weekday),
+      itemCount: _calculateChildCount(segments, weekday),
       itemBuilder: (context, i) {
         final index = calculateIndex(i, weekday);
         if (index < 0 || index >= activities.length) {
