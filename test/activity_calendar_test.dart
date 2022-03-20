@@ -1,4 +1,5 @@
 import 'package:activity_calendar/activity_calendar.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -226,6 +227,64 @@ void main() {
         'Monday',
         () => _calculateIndex(DateTime.monday,
             [0, -1, -2, -3, -4, -5, -6, 7, 6, 5, 4, 3, 2, 1, 14, 13, 12]));
+  });
+
+  testWidgets('Default values', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: ActivityCalendar(
+            activities: [1, 2, 3, 4, 5],
+          ),
+        ),
+      ),
+    );
+
+    final widget =
+        tester.widget<ActivityCalendar>(find.byType(ActivityCalendar));
+
+    expect(widget.fromColor, null);
+    expect(widget.toColor, null);
+    expect(widget.steps, 5);
+    expect(widget.weekday, null);
+    expect(widget.spacing, 3);
+    expect(widget.scrollDirection, Axis.vertical);
+    expect(widget.reverse, false);
+  });
+
+  testWidgets('Default tiles colors', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: ActivityCalendar(
+            activities: [0, 1, 2, 3, 4],
+          ),
+        ),
+      ),
+    );
+
+    // Default light theme colors:
+    // Surface: Color(0xffffffff)
+    // Primary: MaterialColor(primary value: Color(0xff2196f3))
+
+    final containers = tester
+        .widgetList<Container>(find.byType(Container))
+        .toList(growable: false);
+
+    final expectColors = [
+      const Color(0xff2196f3), // default to color
+      const Color(0xff58b0f6),
+      const Color(0xff90caf9),
+      const Color(0xffc7e4fc),
+      const Color(0xffffffff), // default from color
+    ];
+
+    for (int i = 0; i < containers.length; i++) {
+      expect(
+        (containers[i].decoration as BoxDecoration).color,
+        expectColors[i],
+      );
+    }
   });
 }
 

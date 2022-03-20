@@ -33,7 +33,8 @@ class ActivityCalendar extends StatelessWidget {
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
     this.tooltipBuilder,
-  }) : super(key: key);
+  })  : assert(steps >= 2),
+        super(key: key);
 
   final Color? fromColor;
   final Color? toColor;
