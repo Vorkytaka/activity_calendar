@@ -36,16 +36,49 @@ class ActivityCalendar extends StatelessWidget {
   })  : assert(steps >= 2),
         super(key: key);
 
+  /// Color that represents item with no activity.
+  /// If [null], then use Theme's [ColorScheme.surface].
   final Color? fromColor;
+
+  /// Color that represents item with max activity.
+  /// If [null], then use Theme's [ColorScheme.primary].
   final Color? toColor;
+
+  /// Count of color steps including [fromColor] and [toColor].
+  /// By default is 5.
   final int steps;
+
+  /// List of activity per days.
+  /// Each index represent another day from first one to last one.
   final List<int> activities;
+
+  /// Weekday that calendar starts from.
+  /// If [null], then check today weekday.
+  ///
+  /// Use [DateTime] weekdays constants for that.
   final int? weekday;
+
+  /// Spacing between elements, both horizontal and vertical.
+  /// By default is 3.
   final double spacing;
+
+  /// Optional on tap callback.
+  /// Gives index of item by [activities].
+  final IndexedOnTap? onTap;
+
+  /// Border radius of each item.
+  /// By default radius is 8.
+  final BorderRadius borderRadius;
+
+  /// Optional tooltip builder for each item.
+  /// Gives index of item by [activities].
+  /// Must return [String] that will use for item's tooltip.
+  ///
+  /// Work by default [Tooltip] class, so it's already adaptive.
+  final TooltipBuilder? tooltipBuilder;
+
   final Axis scrollDirection;
   final bool reverse;
-  final IndexedOnTap? onTap;
-  final BorderRadius borderRadius;
   final EdgeInsetsGeometry? padding;
   final ScrollPhysics? physics;
   final bool shrinkWrap;
@@ -60,18 +93,20 @@ class ActivityCalendar extends StatelessWidget {
   final bool addAutomaticKeepAlives;
   final bool addRepaintBoundaries;
   final bool addSemanticIndexes;
-  final TooltipBuilder? tooltipBuilder;
 
+  /// Helper method that calculate the actual index of item.
   static int calculateIndex(int i, int weekday) {
     return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - weekday);
   }
 
+  /// Helper method that calculate the actual child count for given data.
   static int calculateChildCount(List<int> activities, int weekday) {
     return activities.length + // actually days
         (7 - weekday) + // skip in first line
         (7 - (activities.length + 7 - weekday) % 7) % 7; // skip on last line
   }
 
+  /// Helper method that give us map of each step to it's widget.
   static Map<int, Widget> tiles(
     Color from,
     Color to,
@@ -122,6 +157,7 @@ class ActivityCalendar extends StatelessWidget {
       );
     }
 
+    // Calculate segments (steps) once, so we don't do it every time.
     final segments = List.generate(
       activities.length,
       (i) => _findSegment(activities[i]),
