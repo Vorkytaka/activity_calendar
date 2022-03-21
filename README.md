@@ -1,39 +1,32 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Activity Calendar
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Github-like activity calendar widget.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+* Activity Calendar for any days count
+* Customizable view
+* Optional tooltip for each item
+* Optional on tap listener for each item
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+For use `ActivityCalendar` all you need to do is push `List<int>` that represent count of activity per day.
 
 ```dart
-const like = 'sample';
+ActivityCalendar(
+  activities: activities,
+)
 ```
 
-## Additional information
+Also `ActivityCalendar` have some arguments to customize it's view.
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+#### Activity Calendar is the Scroll View
+
+You need to remember, that `ActivityCalendar` use `GridView` under the hood.
+So, if you want to use it inside another `ScrollView` with same `scrollDirection`, then
+you need to use `shrinkWrap: true` or `NestedScrollView`.
+
+`ActivityCalendar` have all arguments, that `GridView` has, so, you can customize it behavior.
+
+_(If you want to know more about nested scrolls, then look for [this video](https://youtu.be/LUqDNnv_dh0) by Flutter team)_

@@ -77,21 +77,52 @@ class ActivityCalendar extends StatelessWidget {
   /// Work by default [Tooltip] class, so it's already adaptive.
   final TooltipBuilder? tooltipBuilder;
 
+  /// {@macro flutter.widgets.scrollable.scrollDirection}
   final Axis scrollDirection;
+
+  /// {@macro flutter.widgets.scrollable.reverse}
   final bool reverse;
+
+  /// {@macro flutter.widgets.scrollable.padding}
   final EdgeInsetsGeometry? padding;
+
+  /// {@macro flutter.widgets.scrollable.physics}
   final ScrollPhysics? physics;
+
+  /// {@macro flutter.widgets.scrollable.shrinkWrap}
   final bool shrinkWrap;
+
+  /// {@macro flutter.widgets.scrollable.clipBehavior}
   final Clip clipBehavior;
+
+  /// {@macro flutter.widgets.scrollable.dragStartBehavior}
   final DragStartBehavior dragStartBehavior;
+
+  /// {@macro flutter.widgets.scrollable.keyboardDismissBehavior}
   final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
+
+  /// {@macro flutter.widgets.scrollable.restorationId}
   final String? restorationId;
+
+  /// {@macro flutter.widgets.scrollable.semanticChildCount}
   final int? semanticChildCount;
+
+  /// {@macro flutter.widgets.scrollable.cacheExtent}
   final double? cacheExtent;
+
+  /// {@macro flutter.widgets.scrollable.primary}
   final bool? primary;
+
+  /// {@macro flutter.widgets.scrollable.controller}
   final ScrollController? controller;
+
+  /// {@macro flutter.widgets.scrollable.addAutomaticKeepAlives}
   final bool addAutomaticKeepAlives;
+
+  /// {@macro flutter.widgets.scrollable.addRepaintBoundaries}
   final bool addRepaintBoundaries;
+
+  /// {@macro flutter.widgets.scrollable.addSemanticIndexes}
   final bool addSemanticIndexes;
 
   /// Helper method that calculate the actual index of item.
