@@ -77,28 +77,27 @@ class ActivityCalendar extends StatelessWidget {
   /// Work by default [Tooltip] class, so it's already adaptive.
   final TooltipBuilder? tooltipBuilder;
 
-  /// {@macro flutter.widgets.scrollable.scrollDirection}
+  /// {@macro flutter.widgets.scroll_view.scrollDirection}
   final Axis scrollDirection;
 
-  /// {@macro flutter.widgets.scrollable.reverse}
+  /// {@macro flutter.widgets.scroll_view.reverse}
   final bool reverse;
 
-  /// {@macro flutter.widgets.scrollable.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro flutter.widgets.scrollable.physics}
+  /// {@macro flutter.widgets.scroll_view.physics}
   final ScrollPhysics? physics;
 
-  /// {@macro flutter.widgets.scrollable.shrinkWrap}
+  /// {@macro flutter.widgets.scroll_view.shrinkWrap}
   final bool shrinkWrap;
 
-  /// {@macro flutter.widgets.scrollable.clipBehavior}
+  /// {@macro flutter.material.Material.clipBehavior}
   final Clip clipBehavior;
 
   /// {@macro flutter.widgets.scrollable.dragStartBehavior}
   final DragStartBehavior dragStartBehavior;
 
-  /// {@macro flutter.widgets.scrollable.keyboardDismissBehavior}
+  /// {@macro flutter.widgets.scroll_view.keyboardDismissBehavior}
   final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
 
   /// {@macro flutter.widgets.scrollable.restorationId}
@@ -107,22 +106,19 @@ class ActivityCalendar extends StatelessWidget {
   /// {@macro flutter.widgets.scrollable.semanticChildCount}
   final int? semanticChildCount;
 
-  /// {@macro flutter.widgets.scrollable.cacheExtent}
+  /// {@macro flutter.rendering.RenderViewportBase.cacheExtent}
   final double? cacheExtent;
 
-  /// {@macro flutter.widgets.scrollable.primary}
+  /// {@macro flutter.widgets.scroll_view.primary}
   final bool? primary;
 
-  /// {@macro flutter.widgets.scrollable.controller}
+  /// {@macro flutter.widgets.scroll_view.controller}
   final ScrollController? controller;
 
-  /// {@macro flutter.widgets.scrollable.addAutomaticKeepAlives}
   final bool addAutomaticKeepAlives;
 
-  /// {@macro flutter.widgets.scrollable.addRepaintBoundaries}
   final bool addRepaintBoundaries;
 
-  /// {@macro flutter.widgets.scrollable.addSemanticIndexes}
   final bool addSemanticIndexes;
 
   /// Helper method that calculate the actual index of item.
