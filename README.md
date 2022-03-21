@@ -2,6 +2,10 @@
 
 Github-like activity calendar widget.
 
+| Vertical  | Horizontal |
+| - | - |
+| ![Vertical screenshot](https://raw.githubusercontent.com/Vorkytaka/activity_calendar/assets/vertical.png)  | ![Vertical screenshot](https://raw.githubusercontent.com/Vorkytaka/activity_calendar/assets/horizontal.png)  |
+
 ## Features
 
 * Activity Calendar for any days count
