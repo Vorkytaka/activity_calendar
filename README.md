@@ -1,5 +1,7 @@
 # Activity Calendar
 
+[![pub package](https://img.shields.io/pub/v/activity_calendar.svg)](https://pub.dev/packages/activity_calendar)
+
 Github-like activity calendar widget.
 
 | Vertical  | Horizontal |
