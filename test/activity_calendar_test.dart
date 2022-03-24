@@ -109,7 +109,7 @@ void main() {
             body: ActivityCalendar(
               activities: List.generate(expectIndexes.length, (index) => index),
               weekday: weekday,
-              tooltipBuilder: (i) => '$i',
+              tooltipBuilder: TooltipBuilder.text(builder: (i) => '$i'),
             ),
           ),
         ),
@@ -120,7 +120,7 @@ void main() {
           .toList(growable: false);
       for (int i = 0; i < tooltips.length; i++) {
         final tooltip = tooltips[i];
-        final index = int.parse(tooltip.message!);
+        final index = int.parse((tooltip.richMessage! as TextSpan).text!);
         expect(index, expectIndexes[i]);
       }
     }

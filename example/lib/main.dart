@@ -20,6 +20,8 @@ final List<int> _activities = _randomActivities(1000, 10);
 
 final DateFormat _weekdayFormat = DateFormat.E();
 
+final DateFormat _tooltipFormat = DateFormat.MMMEd();
+
 /// Names of weekdays from monday to sunday
 final List<String> _weekdays =
     List.generate(7, (i) => _weekdayFormat.format(DateTime(2000, 0, 6 + i)));
@@ -92,6 +94,10 @@ class ExampleApp extends StatelessWidget {
 class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final today = DateTime.now();
+    String calculateDate(int i) =>
+        _tooltipFormat.format(today.subtract(Duration(days: i)));
+
     final orientation = _sharedOrientation(context);
     final isVertical = orientation == Axis.vertical;
 
@@ -104,7 +110,17 @@ class _Body extends StatelessWidget {
       weekday: _sharedWeekday(context),
       scrollDirection: _sharedOrientation(context),
       reverse: _sharedOrientation(context) == Axis.horizontal,
-      tooltipBuilder: (i) => '${_activities[i]} contributions',
+      tooltipBuilder: TooltipBuilder.rich(
+        builder: (i) => TextSpan(children: [
+          TextSpan(
+            text: '${_activities[i]} contributions',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          TextSpan(text: ' on ${calculateDate(i)}'),
+        ]),
+      ),
     );
 
     if (isVertical) {

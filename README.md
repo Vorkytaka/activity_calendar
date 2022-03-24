@@ -27,6 +27,40 @@ ActivityCalendar(
 
 Also `ActivityCalendar` have some arguments to customize it's view.
 
+### Tooltips
+
+![Tooltip example](https://raw.githubusercontent.com/Vorkytaka/activity_calendar/assets/tooltip.jpg)
+
+When you need to have a tooltips for each item, then all you need to do is pass `TooltipBuilder? tooltipBuilder` argument to `ActivityCalendar`.
+`TooltipBuilder` can be created with one of two constructors:
+
+```dart
+// Simple text
+// Builder must return String
+TooltipBuilder.text(
+  builder: (int i) => '${activities[i]} contributions',
+  textStyle: TextStyle(fontWeight: FontWeight.bold),
+);
+
+// Rich text
+// Builder must return InlineSpan
+TooltipBuilder.rich(
+  builder: (int i) => TextSpan(
+    children: [
+      TextSpan(
+        text: '${activities[i]} contributions',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      TextSpan(
+        text: ' on ${calculateDate(i)}',
+      ),
+    ],
+  ),
+);
+```
+
+Both `TooltipBuilder` constructors have an arguments to customize tooltips, such as `padding`, `margin`, etc.
+
 #### Activity Calendar is the Scroll View
 
 You need to remember, that `ActivityCalendar` use `GridView` under the hood.

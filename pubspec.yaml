@@ -1,6 +1,6 @@
 name: activity_calendar
 description: Github like activity calendar that can be used for show any activity in period
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/Vorkytaka/activity_calendar
 
 environment:
