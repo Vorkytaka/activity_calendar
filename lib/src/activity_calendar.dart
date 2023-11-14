@@ -252,9 +252,100 @@ class ActivityCalendar extends StatelessWidget {
 
   final bool addSemanticIndexes;
 
-  /// Helper method that calculate the actual index of item.
-  static int _calculateIndex(int i, int weekday) {
-    return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - weekday);
+  /// Calculate index of the item relative to the weekday and start weekday of locale.
+  ///
+  /// The problems is:
+  /// * Our indexes is reversed in line, because our dates goes backward.
+  /// * Also we have an offset with first weekday of the locale.
+  ///
+  /// So, for example, our grid:
+  ///
+  ///   M | T | W | T | F | S | S
+  ///   -|-|-|-|-|-|-
+  ///   0 | 1 | 2 | 3 | 4 | 5 | 6
+  ///   7 | 8 | 9 | 10 | 11 | 12 | 13
+  ///
+  /// will be transform to the:
+  ///
+  ///   M | T | W | T | F | S | S
+  ///   -|-|-|-|-|-|-
+  ///   6 | 5 | 4 | 3 | 2 | 1 | 0
+  ///   13 | 12 | 11 | 10 | 9 | 8 | 7
+  ///
+  /// after that, we need to add offset to the weekday that we are start with,
+  /// so, if we start with Wednesday, then it will be
+  ///
+  ///   M | T | W | T | F | S | S
+  ///   -|-|-|-|-|-|-
+  ///   2 | 1 | 0 | -1 | -2 | -3 | -4
+  ///   9 | 8 | 7 | 6 | 5 | 4 | 3
+  ///
+  /// From that moment, we have right index for our days.
+  /// As we can see from the table, our 0 index is Wednesday, 1 is Tuesday, etc.
+  /// Negative indexes will be ignored.
+  ///
+  /// But, after that we still have a problem with different first weekday.
+  /// If some countries first weekday is monday, somewhere is sunday or even saturday.
+  ///
+  /// So, when we count offset, we add extra offset for the first weekday of local.
+  /// See [weekdayOffset] for more info.
+  static int calculateIndex(
+    int index,
+    int weekday,
+    int firstWeekday,
+  ) {
+    // Reverse current index relatively to current line
+    // Simple: `max + min - value`
+    final line = index ~/ DateTime.daysPerWeek;
+    index = (7 * (line + 1) - 1) + (7 * line) - index;
+
+    // Count index relative to current weekday with offset to start weekday
+    final offset = weekdayOffset(firstWeekday);
+    index = index - (7 - weekday - offset) % 7;
+
+    return index;
+  }
+
+  /// Get offset for the first weekday of current locale.
+  ///
+  /// Each locale can has it own first day of the week.
+  /// For example, in Russia is monday, in USA is sunday and in UAE is Saturday.
+  ///
+  /// So, to handle each of it, we need to add some offset to our index, that mapped in this function.
+  ///
+  /// For example, if we have Saturday as a first weekday, then we have this list:
+  ///
+  ///   Sat | Sun | Mon | Tue | Wed | Thu | Fri
+  ///    6  |  7  |  1  |  2  |  3  |  4  |  5
+  ///
+  /// But we need:
+  ///
+  ///   Sat | Sun | Mon | Tue | Wed | Thu | Fri
+  ///    1  |  2  |  3  |  4  |  5  |  6  |  7
+  ///
+  /// So, to have a right offset, we need to move each day back for 2 steps.
+  ///
+  /// And, yes, we can count them just like
+  /// `---`
+  /// but why?
+  static int weekdayOffset(int firstWeekday) {
+    switch (firstWeekday) {
+      case 7: // Sunday
+      case 0: // Sunday from MaterialLocalization
+        return 1;
+      case 6: // Saturday
+        return 2;
+      case 5: // Friday
+        return 3;
+      case 4: // Thursday
+        return 4;
+      case 3: // Wednesday
+        return 5;
+      case 2: // Tuesday
+        return 6;
+      default: // Monday
+        return 0;
+    }
   }
 
   /// Helper method that calculate the actual child count for given data.
@@ -322,6 +413,12 @@ class ActivityCalendar extends StatelessWidget {
       growable: false,
     );
 
+    final localizations = Localizations.of<MaterialLocalizations>(
+      context,
+      MaterialLocalizations,
+    );
+    final startWeekday = localizations?.firstDayOfWeekIndex ?? DateTime.monday;
+
     return GridView.builder(
       padding: padding,
       scrollDirection: scrollDirection,
@@ -346,7 +443,7 @@ class ActivityCalendar extends StatelessWidget {
       ),
       itemCount: _calculateChildCount(segments, weekday),
       itemBuilder: (context, i) {
-        final index = _calculateIndex(i, weekday);
+        final index = calculateIndex(i, weekday, startWeekday);
         if (index < 0 || index >= activities.length) {
           return const SizedBox();
         }
