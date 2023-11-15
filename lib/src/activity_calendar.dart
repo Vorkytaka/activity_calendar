@@ -291,8 +291,7 @@ class ActivityCalendar extends StatelessWidget {
   /// See [weekdayOffset] for more info.
   static int calculateIndex(
     int index,
-    int weekday,
-    int firstWeekday,
+    int offset,
   ) {
     // Reverse current index relatively to current line
     // Simple: `max + min - value`
@@ -300,13 +299,12 @@ class ActivityCalendar extends StatelessWidget {
     index = (7 * (line + 1) - 1) + (7 * line) - index;
 
     // Count index relative to current weekday with offset to start weekday
-    final offset = weekdayOffset(firstWeekday);
-    index = index - (7 - weekday - offset) % 7;
+    index = index - offset;
 
     return index;
   }
 
-  /// Get offset for the first weekday of current locale.
+  /// Get offset for the [firstWeekday] of current locale relate to the [weekday].
   ///
   /// Each locale can has it own first day of the week.
   /// For example, in Russia is monday, in USA is sunday and in UAE is Saturday.
@@ -325,34 +323,62 @@ class ActivityCalendar extends StatelessWidget {
   ///
   /// So, to have a right offset, we need to move each day back for 2 steps.
   ///
-  /// And, yes, we can count them just like
-  /// `---`
-  /// but why?
-  static int weekdayOffset(int firstWeekday) {
+  /// {@template offset_info}
+  /// So, offset is how many from end of first line we need to move,
+  /// so we have right indexes. For example:
+  ///
+  ///   M | T | W | T | F | S | S
+  ///   2 | 1 | 0 | - | - | - | -
+  ///   - | - | 7 | 6 | 5 | 4 | 3
+  ///
+  /// Here our first index is 0, it's Wednesday.
+  /// And we have 4 empty indexes. That's what offset about.
+  /// {@endtemplate}
+  static int weekdayOffset(int weekday, int firstWeekday) {
+    assert(weekday >= 0 && weekday <= 7);
+    assert(firstWeekday >= 0 && firstWeekday <= 7);
+
+    // The easiest way to get right offset
+    final int offset;
     switch (firstWeekday) {
       case 7: // Sunday
       case 0: // Sunday from MaterialLocalization
-        return 1;
+        offset = 1;
+        break;
       case 6: // Saturday
-        return 2;
+        offset = 2;
+        break;
       case 5: // Friday
-        return 3;
+        offset = 3;
+        break;
       case 4: // Thursday
-        return 4;
+        offset = 4;
+        break;
       case 3: // Wednesday
-        return 5;
+        offset = 5;
+        break;
       case 2: // Tuesday
-        return 6;
+        offset = 6;
+        break;
       default: // Monday
-        return 0;
+        offset = 0;
+        break;
     }
+
+    return (7 - weekday - offset) % 7;
   }
 
   /// Helper method that calculate the actual child count for given data.
-  static int _calculateChildCount(List<int> activities, int weekday) {
-    return activities.length + // actually days
-        (7 - weekday) + // skip in first line
-        (7 - (activities.length + 7 - weekday) % 7) % 7; // skip on last line
+  ///
+  /// [count] is the count of the children.
+  /// [offset] is the start weekday offset. See [weekdayOffset].
+  ///
+  /// {@macro offset}
+  ///
+  /// Here we have 8 children, but also 6 empty elements.
+  /// So, our _actual_ child count will be 14.
+  static int calculateChildCount(int count, int offset) {
+    return ((count + offset) / 7).ceil() * 7;
   }
 
   /// Helper method that give us map of each step to it's widget.
@@ -418,6 +444,8 @@ class ActivityCalendar extends StatelessWidget {
       MaterialLocalizations,
     );
     final startWeekday = localizations?.firstDayOfWeekIndex ?? DateTime.monday;
+    final offset = weekdayOffset(weekday, startWeekday);
+    final childCount = calculateChildCount(segments.length, offset);
 
     return GridView.builder(
       padding: padding,
@@ -441,9 +469,9 @@ class ActivityCalendar extends StatelessWidget {
         crossAxisSpacing: spacing,
         mainAxisSpacing: spacing,
       ),
-      itemCount: _calculateChildCount(segments, weekday),
+      itemCount: childCount,
       itemBuilder: (context, i) {
-        final index = calculateIndex(i, weekday, startWeekday);
+        final index = calculateIndex(i, offset);
         if (index < 0 || index >= activities.length) {
           return const SizedBox();
         }
