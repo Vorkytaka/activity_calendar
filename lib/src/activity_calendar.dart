@@ -1,11 +1,25 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+/// Signature of callback that has [index] as an argument and no return data.
+///
+/// Useful for onTap with index of the list.
 typedef IndexedOnTap = void Function(int index);
 
+/// Signature of callback that we use for create simple tooltips.
+///
+/// See [TooltipBuilder] and [TooltipBuilder.text].
 typedef TextTooltipBuilder = String Function(int index);
 
+/// Signature of callback that we use for create rich-text tooltips.
+///
+/// See [TooltipBuilder] and [TooltipBuilder.rich].
 typedef RichTooltipBuilder = InlineSpan Function(int index);
+
+/// Signature for builder of the element of activity.
+///
+/// Take an [index] of the list, and return value of the activity for the element.
+typedef ActivityBuilder = int Function(int index);
 
 /// Class that represent builder of tooltip for each item of [ActivityCalendar].
 ///
@@ -15,6 +29,8 @@ typedef RichTooltipBuilder = InlineSpan Function(int index);
 ///
 /// Both constructors have almost all arguments that [Tooltip] can have,
 /// so you can customize it's behavior.
+///
+/// The docs for the parameters of this class is copy-pasted from [Tooltip] class.
 class TooltipBuilder {
   /// Rich text builder
   const TooltipBuilder.rich({
@@ -32,6 +48,7 @@ class TooltipBuilder {
   });
 
   /// Simple text builder.
+  ///
   /// Have optional `TextStyle? textStyle` argument.
   TooltipBuilder.text({
     required TextTooltipBuilder builder,
@@ -135,13 +152,70 @@ class TooltipBuilder {
   final bool? enableFeedback;
 }
 
+/// A delegate that supplies activity for a calendar.
+abstract class ActivityDelegate {
+  int get max;
+
+  int get count;
+
+  ActivityBuilder get builder;
+
+  factory ActivityDelegate.list({required List<int> activities}) =>
+      ActivityListDelegate(activities: activities);
+
+  factory ActivityDelegate.builder({
+    required int max,
+    required int count,
+    required ActivityBuilder builder,
+  }) =>
+      ActivityBuilderDelegate(
+        max: max,
+        count: count,
+        builder: builder,
+      );
+}
+
+class ActivityListDelegate implements ActivityDelegate {
+  final List<int> activities;
+
+  ActivityListDelegate({
+    required this.activities,
+  }) : max = activities.fold(0, (prev, curr) => prev > curr ? prev : curr);
+
+  @override
+  ActivityBuilder get builder => (i) => activities[i];
+
+  @override
+  int get count => activities.length;
+
+  @override
+  int max;
+}
+
+class ActivityBuilderDelegate implements ActivityDelegate {
+  @override
+  final int max;
+
+  @override
+  final int count;
+
+  @override
+  final ActivityBuilder builder;
+
+  const ActivityBuilderDelegate({
+    required this.max,
+    required this.count,
+    required this.builder,
+  });
+}
+
 class ActivityCalendar extends StatelessWidget {
   const ActivityCalendar({
-    Key? key,
+    super.key,
+    required this.delegate,
     this.fromColor,
     this.toColor,
     this.steps = 5,
-    required this.activities,
     this.weekday,
     this.spacing = 3,
     this.scrollDirection = Axis.vertical,
@@ -163,8 +237,9 @@ class ActivityCalendar extends StatelessWidget {
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
     this.tooltipBuilder,
-  })  : assert(steps >= 2),
-        super(key: key);
+  }) : assert(steps >= 2);
+
+  final ActivityDelegate delegate;
 
   /// Color that represents item with no activity.
   /// If [null], then use Theme's [ColorScheme.surface].
@@ -177,10 +252,6 @@ class ActivityCalendar extends StatelessWidget {
   /// Count of color steps including [fromColor] and [toColor].
   /// By default is 5.
   final int steps;
-
-  /// List of activity per days.
-  /// Each index represent another day from first one to last one.
-  final List<int> activities;
 
   /// Weekday that calendar starts from.
   /// If [null], then check today weekday.
@@ -421,7 +492,7 @@ class ActivityCalendar extends StatelessWidget {
       fromColor ?? Theme.of(context).colorScheme.surface,
       toColor ?? Theme.of(context).colorScheme.primary,
       steps,
-      activities.fold(0, (prev, curr) => curr > prev ? curr : prev),
+      delegate.max,
       borderRadius,
     );
 
@@ -434,8 +505,8 @@ class ActivityCalendar extends StatelessWidget {
 
     // Calculate segments (steps) once, so we don't do it every time.
     final segments = List.generate(
-      activities.length,
-      (i) => _findSegment(activities[i]),
+      delegate.count,
+      (i) => _findSegment(delegate.builder(i)),
       growable: false,
     );
 
@@ -472,7 +543,7 @@ class ActivityCalendar extends StatelessWidget {
       itemCount: childCount,
       itemBuilder: (context, i) {
         final index = calculateIndex(i, offset);
-        if (index < 0 || index >= activities.length) {
+        if (index < 0 || index >= delegate.count) {
           return const SizedBox();
         }
 
