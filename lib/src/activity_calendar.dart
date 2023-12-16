@@ -1,11 +1,25 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+/// Signature of callback that has [index] as an argument and no return data.
+///
+/// Useful for onTap with index of the list.
 typedef IndexedOnTap = void Function(int index);
 
+/// Signature of callback that we use for create simple tooltips.
+///
+/// See [TooltipBuilder] and [TooltipBuilder.text].
 typedef TextTooltipBuilder = String Function(int index);
 
+/// Signature of callback that we use for create rich-text tooltips.
+///
+/// See [TooltipBuilder] and [TooltipBuilder.rich].
 typedef RichTooltipBuilder = InlineSpan Function(int index);
+
+/// Signature for builder of the element of activity.
+///
+/// Take an [index] of the list, and return value of the activity for the element.
+typedef ActivityBuilder = int Function(int index);
 
 /// Class that represent builder of tooltip for each item of [ActivityCalendar].
 ///
@@ -15,6 +29,8 @@ typedef RichTooltipBuilder = InlineSpan Function(int index);
 ///
 /// Both constructors have almost all arguments that [Tooltip] can have,
 /// so you can customize it's behavior.
+///
+/// The docs for the parameters of this class is copy-pasted from [Tooltip] class.
 class TooltipBuilder {
   /// Rich text builder
   const TooltipBuilder.rich({
@@ -32,6 +48,7 @@ class TooltipBuilder {
   });
 
   /// Simple text builder.
+  ///
   /// Have optional `TextStyle? textStyle` argument.
   TooltipBuilder.text({
     required TextTooltipBuilder builder,
@@ -135,13 +152,70 @@ class TooltipBuilder {
   final bool? enableFeedback;
 }
 
+/// A delegate that supplies activity for a calendar.
+abstract class ActivityDelegate {
+  int get max;
+
+  int get count;
+
+  ActivityBuilder get builder;
+
+  factory ActivityDelegate.list({required List<int> activities}) =>
+      ActivityListDelegate(activities: activities);
+
+  factory ActivityDelegate.builder({
+    required int max,
+    required int count,
+    required ActivityBuilder builder,
+  }) =>
+      ActivityBuilderDelegate(
+        max: max,
+        count: count,
+        builder: builder,
+      );
+}
+
+class ActivityListDelegate implements ActivityDelegate {
+  final List<int> activities;
+
+  ActivityListDelegate({
+    required this.activities,
+  }) : max = activities.fold(0, (prev, curr) => prev > curr ? prev : curr);
+
+  @override
+  ActivityBuilder get builder => (i) => activities[i];
+
+  @override
+  int get count => activities.length;
+
+  @override
+  int max;
+}
+
+class ActivityBuilderDelegate implements ActivityDelegate {
+  @override
+  final int max;
+
+  @override
+  final int count;
+
+  @override
+  final ActivityBuilder builder;
+
+  const ActivityBuilderDelegate({
+    required this.max,
+    required this.count,
+    required this.builder,
+  });
+}
+
 class ActivityCalendar extends StatelessWidget {
   const ActivityCalendar({
-    Key? key,
+    super.key,
+    required this.delegate,
     this.fromColor,
     this.toColor,
     this.steps = 5,
-    required this.activities,
     this.weekday,
     this.spacing = 3,
     this.scrollDirection = Axis.vertical,
@@ -163,8 +237,9 @@ class ActivityCalendar extends StatelessWidget {
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
     this.tooltipBuilder,
-  })  : assert(steps >= 2),
-        super(key: key);
+  }) : assert(steps >= 2);
+
+  final ActivityDelegate delegate;
 
   /// Color that represents item with no activity.
   /// If [null], then use Theme's [ColorScheme.surface].
@@ -177,10 +252,6 @@ class ActivityCalendar extends StatelessWidget {
   /// Count of color steps including [fromColor] and [toColor].
   /// By default is 5.
   final int steps;
-
-  /// List of activity per days.
-  /// Each index represent another day from first one to last one.
-  final List<int> activities;
 
   /// Weekday that calendar starts from.
   /// If [null], then check today weekday.
@@ -252,16 +323,133 @@ class ActivityCalendar extends StatelessWidget {
 
   final bool addSemanticIndexes;
 
-  /// Helper method that calculate the actual index of item.
-  static int _calculateIndex(int i, int weekday) {
-    return 6 - i + (7 * ((i ~/ 7) * 2)) - (7 - weekday);
+  /// Calculate index of the item relative to the weekday and start weekday of locale.
+  ///
+  /// The problems is:
+  /// * Our indexes is reversed in line, because our dates goes backward.
+  /// * Also we have an offset with first weekday of the locale.
+  ///
+  /// So, for example, our grid:
+  ///
+  ///   M | T | W | T | F | S | S
+  ///   -|-|-|-|-|-|-
+  ///   0 | 1 | 2 | 3 | 4 | 5 | 6
+  ///   7 | 8 | 9 | 10 | 11 | 12 | 13
+  ///
+  /// will be transform to the:
+  ///
+  ///   M | T | W | T | F | S | S
+  ///   -|-|-|-|-|-|-
+  ///   6 | 5 | 4 | 3 | 2 | 1 | 0
+  ///   13 | 12 | 11 | 10 | 9 | 8 | 7
+  ///
+  /// after that, we need to add offset to the weekday that we are start with,
+  /// so, if we start with Wednesday, then it will be
+  ///
+  ///   M | T | W | T | F | S | S
+  ///   -|-|-|-|-|-|-
+  ///   2 | 1 | 0 | -1 | -2 | -3 | -4
+  ///   9 | 8 | 7 | 6 | 5 | 4 | 3
+  ///
+  /// From that moment, we have right index for our days.
+  /// As we can see from the table, our 0 index is Wednesday, 1 is Tuesday, etc.
+  /// Negative indexes will be ignored.
+  ///
+  /// But, after that we still have a problem with different first weekday.
+  /// If some countries first weekday is monday, somewhere is sunday or even saturday.
+  ///
+  /// So, when we count offset, we add extra offset for the first weekday of local.
+  /// See [weekdayOffset] for more info.
+  static int calculateIndex(
+    int index,
+    int offset,
+  ) {
+    // Reverse current index relatively to current line
+    // Simple: `max + min - value`
+    final line = index ~/ DateTime.daysPerWeek;
+    index = (7 * (line + 1) - 1) + (7 * line) - index;
+
+    // Count index relative to current weekday with offset to start weekday
+    index = index - offset;
+
+    return index;
+  }
+
+  /// Get offset for the [firstWeekday] of current locale relate to the [weekday].
+  ///
+  /// Each locale can has it own first day of the week.
+  /// For example, in Russia is monday, in USA is sunday and in UAE is Saturday.
+  ///
+  /// So, to handle each of it, we need to add some offset to our index, that mapped in this function.
+  ///
+  /// For example, if we have Saturday as a first weekday, then we have this list:
+  ///
+  ///   Sat | Sun | Mon | Tue | Wed | Thu | Fri
+  ///    6  |  7  |  1  |  2  |  3  |  4  |  5
+  ///
+  /// But we need:
+  ///
+  ///   Sat | Sun | Mon | Tue | Wed | Thu | Fri
+  ///    1  |  2  |  3  |  4  |  5  |  6  |  7
+  ///
+  /// So, to have a right offset, we need to move each day back for 2 steps.
+  ///
+  /// {@template offset_info}
+  /// So, offset is how many from end of first line we need to move,
+  /// so we have right indexes. For example:
+  ///
+  ///   M | T | W | T | F | S | S
+  ///   2 | 1 | 0 | - | - | - | -
+  ///   - | - | 7 | 6 | 5 | 4 | 3
+  ///
+  /// Here our first index is 0, it's Wednesday.
+  /// And we have 4 empty indexes. That's what offset about.
+  /// {@endtemplate}
+  static int weekdayOffset(int weekday, int firstWeekday) {
+    assert(weekday >= 0 && weekday <= 7);
+    assert(firstWeekday >= 0 && firstWeekday <= 7);
+
+    // The easiest way to get right offset
+    final int offset;
+    switch (firstWeekday) {
+      case 7: // Sunday
+      case 0: // Sunday from MaterialLocalization
+        offset = 1;
+        break;
+      case 6: // Saturday
+        offset = 2;
+        break;
+      case 5: // Friday
+        offset = 3;
+        break;
+      case 4: // Thursday
+        offset = 4;
+        break;
+      case 3: // Wednesday
+        offset = 5;
+        break;
+      case 2: // Tuesday
+        offset = 6;
+        break;
+      default: // Monday
+        offset = 0;
+        break;
+    }
+
+    return (7 - weekday - offset) % 7;
   }
 
   /// Helper method that calculate the actual child count for given data.
-  static int _calculateChildCount(List<int> activities, int weekday) {
-    return activities.length + // actually days
-        (7 - weekday) + // skip in first line
-        (7 - (activities.length + 7 - weekday) % 7) % 7; // skip on last line
+  ///
+  /// [count] is the count of the children.
+  /// [offset] is the start weekday offset. See [weekdayOffset].
+  ///
+  /// {@macro offset}
+  ///
+  /// Here we have 8 children, but also 6 empty elements.
+  /// So, our _actual_ child count will be 14.
+  static int calculateChildCount(int count, int offset) {
+    return ((count + offset) / 7).ceil() * 7;
   }
 
   /// Helper method that give us map of each step to it's widget.
@@ -304,7 +492,7 @@ class ActivityCalendar extends StatelessWidget {
       fromColor ?? Theme.of(context).colorScheme.surface,
       toColor ?? Theme.of(context).colorScheme.primary,
       steps,
-      activities.fold(0, (prev, curr) => curr > prev ? curr : prev),
+      delegate.max,
       borderRadius,
     );
 
@@ -317,10 +505,18 @@ class ActivityCalendar extends StatelessWidget {
 
     // Calculate segments (steps) once, so we don't do it every time.
     final segments = List.generate(
-      activities.length,
-      (i) => _findSegment(activities[i]),
+      delegate.count,
+      (i) => _findSegment(delegate.builder(i)),
       growable: false,
     );
+
+    final localizations = Localizations.of<MaterialLocalizations>(
+      context,
+      MaterialLocalizations,
+    );
+    final startWeekday = localizations?.firstDayOfWeekIndex ?? DateTime.monday;
+    final offset = weekdayOffset(weekday, startWeekday);
+    final childCount = calculateChildCount(segments.length, offset);
 
     return GridView.builder(
       padding: padding,
@@ -344,10 +540,10 @@ class ActivityCalendar extends StatelessWidget {
         crossAxisSpacing: spacing,
         mainAxisSpacing: spacing,
       ),
-      itemCount: _calculateChildCount(segments, weekday),
+      itemCount: childCount,
       itemBuilder: (context, i) {
-        final index = _calculateIndex(i, weekday);
-        if (index < 0 || index >= activities.length) {
+        final index = calculateIndex(i, offset);
+        if (index < 0 || index >= delegate.count) {
           return const SizedBox();
         }
 
